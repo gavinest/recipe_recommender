@@ -54,7 +54,7 @@ def parse_recipe(link):
 
     #categories
     for category in soup.findAll('span', attrs={'class' : "toggle-similar__title"})[2:]:
-        entry['taxonomy'].append(category.text)
+        entry['taxonomy'].append(category.text.strip())
 
     #ingredients
     for ingredient in soup.findAll('span', attrs={'class': 'recipe-ingred_txt added'}):
@@ -81,8 +81,15 @@ def main(i):
     if recipe_data_to_mongo(i):
         print 'Success!'
 
+def read_from_db(name):
+    db_client = MongoClient()
+    db = db_client['allrecipes']
+    collection = db['recipes']
+    return collection.find({'name': name})
+
 if __name__ == '__main__':
     # main(1)
     # test_link = '/recipe/24272/buttery-soft-pretzels/'
     # entry = parse_recipe(test_link)
-    main(1)
+    # main(1)
+    test = read_from_db("chicken-and-mushroom-chimichangas")
