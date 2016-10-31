@@ -1,2 +1,5 @@
-#ignore .pyc files
+#ignore files
 *.pyc
+*.log
+*.txt
+
