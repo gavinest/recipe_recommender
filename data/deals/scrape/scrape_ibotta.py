@@ -78,10 +78,10 @@ class IbottaScraper(object):
             for cat_id in offer['offer_category_ids']:
                 if cat_id in self.offer_categories.values():
                     if not bool(COLLECTION.find({'id': offer['id']}).count()):
-                        offer['tags'] = [t['offer_tag']for t in offer['offer_tags']]
+                        # offer['tags'] = [t['offer_tag']for t in offer['offer_tags']]
                         COLLECTION.insert_one(offer)
 
 if __name__ == '__main__':
-    token = 'lyWreHoghkuWyed6:1477951824:d3e4bbfdc5ac47b07348f533a5c7119ae7a5551a'
+    token = 'lyWreHoghkuWyed6:1478024364:d325cabfe1dff105eaf87311111fdfb4b90411dd'
     #App_Tokens expire when browser session is closed so need to get new one at least daily
     ibotta = IbottaScraper(App_Token=token)

@@ -16,7 +16,7 @@ DATABASE = CLIENT[DB_NAME]
 COLLECTION = DATABASE[COLL_NAME]
 
 def stop_words():
-    recipe_stopwords = set(['pound', 'pounds', 'tablespoon', 'tablespoons', 'teaspoon', 'teaspoons', 'cup', 'cups', 'bunch', 'chopped'])
+    recipe_stopwords = set(['pound', 'pounds', 'tablespoon', 'tablespoons', 'teaspoon', 'teaspoons', 'cup', 'cups', 'bunch', 'chopped', 'ounce'])
     stop = set(stopwords.words('english'))
     return stop.union(recipe_stopwords)
 
