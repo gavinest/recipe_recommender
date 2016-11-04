@@ -22,19 +22,49 @@ RECIPE_COLLECTION = DATABASE['recipes']
 USER_COLLECTION = DATABASE['users']
 
 #CLEAN RECIPES
-def stop_words():
-    recipe_stopwords = set(['pound', 'pounds', 'tablespoon', 'tablespoons', 'teaspoon', 'teaspoons', 'cup', 'cups', 'bunch', 'chopped', 'diced', 'ounce', 'ounces'])
-    stop = set(stopwords.words('english'))
-    return stop.union(recipe_stopwords)
+class NLPProcessor(object):
+    def __init__(self, vectorizer=TfidfVectorizer, kwargs=None):
+        self.documents = []
+        self.vectorizer = vectorizer()
 
-def clean_ingredients(recipe):
-    stop = stop_words()
-    cleaned = []
-    for line in recipe:
-        line = [_ for _ in unidecode(line).lower().translate(None, punctuation).split() if not _.isdigit()]
-        lemmers = [WordNetLemmatizer().lemmatize(word) for word in line if word not in stop]
-        cleaned.extend([word for word in lemmers])
-    return cleaned
+    def _stop_words(self):
+        recipe_stopwords = set(['pound', 'pounds', 'tablespoon', 'tablespoons', 'teaspoon', 'teaspoons', 'cup', 'cups', 'bunch', 'chopped', 'diced', 'ounce', 'ounces'])
+        stop = set(stopwords.words('english'))
+        return stop.union(recipe_stopwords)
+
+    def _tokenize(self, text):
+        stop = self._stop_words()
+        tokens = []
+        for line in text:
+            line = [_ for _ in unidecode(line).lower().translate(None, punctuation).split() if not _.isdigit()]
+            lemmers = [WordNetLemmatizer().lemmatize(word) for word in line if word not in stop]
+            tokens.extend([word for word in lemmers])
+        return tokens
+
+'''update database with recipe 'tokens' or this shit will take a real long time everytime it runs'''
+
+    def get_tfidf(self, ids):
+        for recipe_id in ids:
+            recipe = RECIPE_COLLECTION.find_one({'recipe_id': recipe_id})
+            print recipe
+            if not recipe:
+                text = recipe['ingredients']
+                text.extend(recipe['taxonomy'])
+                text.append(' '.join(recipe['name'].split('-')))
+                self.documents.append(' '.join(self._tokenize(text)))
+            else:
+                self.documents.append(' ')
+
+        self.tfidf = self.vectorizer.fit_transform(self.documents)
+
+    # def test(self, num_recipes=1):
+    #     documents = []
+    #     for recipe in RECIPE_COLLECTION.find().limit(num_recipes):
+    #         text = recipe['ingredients']
+    #         text.extend(recipe['taxonomy'])
+    #         text.append(' '.join(recipe['name'].split('-')))
+    #         documents.append(' '.join(tokenize(text)))
+    #     return documents
 
 # def update_recipes():
 #     for recipe in COLLECTION.find():
@@ -44,17 +74,8 @@ def clean_ingredients(recipe):
 #         # print clean_ingredients(recipe['ingredients'])
 #     print 'Updated!'
 
-def test_one():
-    test = RECIPE_COLLECTION.find_one()
-    text = test['ingredients']
-    text.extend(test['taxonomy'])
-    text.append(' '.join(test['name'].split('-')))
-    print text
-    clean = clean_ingredients(text)
-
-    return test, clean
 
 if __name__ == '__main__':
     # t = clean_ingredients(test_list)
     # update_recipes()
-    test, clean = test_one()
+    t = NLPProcessor()
