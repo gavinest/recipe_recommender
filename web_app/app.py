@@ -2,7 +2,9 @@ from flask import Flask, request, render_template
 import numpy as np
 import pandas as pd
 import graphlab as gl
-from load_data import DataLoader
+import sys
+sys.path.append('/Users/Gavin/ds/recipe_recommender')
+from data_management.load_data import DataLoader
 
 app = Flask(__name__)
 
@@ -16,23 +18,22 @@ def contact_me():
     return render_template('contact.html')
 
 @app.route('/recommend')
-def recommender():
-    recipe_card = get_recipe_cards(df)[0]
+@app.route('/recommend/<user_id>')
+def recommender(user_id=827351):
+    # 827351
+    rec = model.recommend([user_id], k=5)[0]['recipe_id']
+    recipe_card = data.pull_recipe_data([str(rec)])[0]
 
     return render_template('recommender.html',
                             recipe_name=recipe_card['name'],
+                            ingredients=recipe_card['ingredients'],
                             directions=recipe_card['directions'])
-
-def get_recipe_cards(df):
-    sf = gl.SFrame(df)
-    model = gl.popularity_recommender.create(sf, user_id='user_id', item_id='recipe_id', target='rating')
-    rec = model.recommend([827351], k=5)[0]['recipe_id']
-    return data.pull_recipe_data([str(rec)])
 
 if __name__ == '__main__':
     data = DataLoader(10)
     data.to_dataframe()
     df = data.df
+    model = gl.load_model('../models/model')
 
     app.run(host='0.0.0.0', port=8080, debug=True)
 

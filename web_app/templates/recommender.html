@@ -13,6 +13,11 @@
         </h3>
         <p class="lead">
           <h3>{{recipe_name}}</h3>
+          <h4>Ingredients</h4>
+          {% for i in ingredients %}
+          <li>{{i}}</li>
+          {% endfor %}
+          <h4>Directions:</h4>
           {% for i in directions %}
           <li>{{i}}</li>
           {% endfor %}
