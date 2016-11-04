@@ -1,0 +1,36 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="container">
+
+    <hr class="featurette-divider">
+
+    <!-- First Featurette -->
+    <div class="featurette" id="about">
+        <img class="featurette-image img-circle img-responsive pull-right" src="http://placehold.it/500x500">
+        <h3 class="featurette-heading">Recommended Recipes:
+            <span class="text-muted"></span>
+        </h3>
+        <p class="lead">
+          <h3>{{recipe_name}}</h3>
+          {% for i in directions %}
+          <li>{{i}}</li>
+          {% endfor %}
+        </p>
+    </div>
+
+    <hr class="featurette-divider">
+
+    <!-- Footer -->
+    <footer>
+        <div class="row">
+            <div class="col-lg-12">
+                <p>Copyright &copy; Your Website 2014</p>
+            </div>
+        </div>
+    </footer>
+
+</div>
+<!-- /.container -->
+
+{% endblock %}
