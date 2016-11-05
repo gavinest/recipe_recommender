@@ -21,7 +21,7 @@ class DataLoader(object):
         self.n_users = n_users
         self.recipe_idx = {}
         self.user_idx = {}
-        # self._to_matrix()
+        self._to_matrix()
         self.to_dataframe()
 
     def _to_matrix(self):

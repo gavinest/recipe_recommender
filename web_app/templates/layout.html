@@ -44,9 +44,19 @@
             <!-- Collect the nav links, forms, and other content for toggling -->
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
-                    <li>
+                  <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">About the Project</a>
+                    <ul class="dropdown-menu">
+                      <li><a href="/#summary">Summary</a></li>
+                      <li><a href="/#data">Data Gathering</a></li>
+                      <li><a href="/#processing">Data Wrangling</a></li>
+                      <li><a href="/#models">Models</a></li>
+                      <li><a href="/#final">Final Product</a></li>
+                    </ul>
+                  </li>
+                    <!-- <li>
                         <a href="/">About the Project</a>
-                    </li>
+                    </li> -->
                     <li>
                         <a href="/recommend">Recipe Recommender</a>
                     </li>
@@ -61,6 +71,7 @@
     </nav>
 
     <!-- Full Width Image Header -->
+    {% block image_header %}
     <header class="header-image">
         <div class="headline">
             <div class="container">
@@ -69,6 +80,7 @@
             </div>
         </div>
     </header>
+    {% endblock %}
     {% block content %}{% endblock %}
 
     <!-- jQuery -->

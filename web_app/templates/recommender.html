@@ -2,10 +2,18 @@
 
 {% block content %}
 <div class="container">
+  <br>
+  <h4>Enter User-ID for Recipe Recommendation:</h4>
+  <br>
+  <form action="" class="form-inline" method="post">
+    <input type="text" class="form-control" placeholder="User ID" name="user_id" value="{{request.form.user_id}}">
+    <input class="btn btn-default" type="submit" value="Recommend">
+  </form>
+</div>
+
+<div class="container">
 
     <hr class="featurette-divider">
-
-    <!-- First Featurette -->
     <div class="featurette" id="about">
         <img class="featurette-image img-circle img-responsive pull-right" src="http://placehold.it/500x500">
         <h3 class="featurette-heading">Recommended Recipes:
