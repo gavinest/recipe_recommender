@@ -17,11 +17,12 @@ class DataLoader(object):
 
     Reads user and recipe data from MonogDB. Allowing outputs of various data types.
     '''
-    def __init__(self, n_users):
+    def __init__(self, n_users=None):
         self.n_users = n_users
         self.recipe_idx = {}
         self.user_idx = {}
-        self._to_matrix()
+        # self._to_matrix()
+        self.to_dataframe()
 
     def _to_matrix(self):
         self.n_recipes = RECIPE_COLLECTION.find().count()
@@ -47,6 +48,9 @@ class DataLoader(object):
         self.sparse_mat.transpose().tocsr()
 
     def to_dataframe(self):
+        '''
+        sends specified number of users to pandas dataframe.
+        '''
         ary = np.zeros((1,3))
         for user in USER_COLLECTION.find().limit(self.n_users):
             user_id = user['user_id']

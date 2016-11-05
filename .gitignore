@@ -3,3 +3,7 @@
 *.log
 *.txt
 *.pkl
+*.ipynb
+
+#ignore directories
+eda/

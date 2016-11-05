@@ -30,7 +30,7 @@ class NLPProcessor(object):
         self.vectorizer = vectorizer(**kwargs)
 
     def _stop_words(self):
-        recipe_stopwords = set(['pound', 'pounds', 'tablespoon', 'tablespoons', 'teaspoon', 'teaspoons', 'cup', 'cups', 'bunch', 'chopped', 'diced', 'crushed', 'inch', 'sliced', 'optional', 'desired', 'ounce', 'ounces', 'fresh', 'piece', 'thinly', 'pinch', 'sprinkling', 'peeled', 'taste', 'quartered', 'halved', 'divided', 'lengthwise', 'box', 'package', 'packaged' 'uncooked', 'cooked', 'seared', 'drained', 'trimmed', 'mashed', 'grated', 'ground', 'shredded', 'cut', 'prepared', 'fresh', 'freshly', 'dried', 'fresh', 'beaten', 'lightly', 'light', 'room', 'temperature', 'skinless', 'boneless', 'half', 'chunk', 'yummy'])
+        recipe_stopwords = set(['pound', 'pounds', 'tablespoon', 'tablespoons', 'teaspoon', 'teaspoons', 'cup', 'cups', 'bunch', 'chopped', 'diced', 'crushed', 'inch', 'sliced', 'optional', 'desired', 'ounce', 'ounces', 'fresh', 'piece', 'pinch', 'sprinkling', 'peeled', 'taste', 'quartered', 'halved', 'half', 'divided', 'lengthwise', 'box', 'package', 'packaged', 'uncooked', 'cooked', 'seared', 'drained', 'trimmed', 'mashed', 'grated', 'ground', 'shredded', 'cut', 'cube', 'cubed', 'prepared', 'fresh', 'freshly', 'dried', 'fresh', 'beaten', 'lightly', 'light', 'room', 'temperature', 'skinless', 'boneless', 'half', 'chunk', 'yummy', 'snipped', 'fillet', 'whole', 'husk', 'removed', 'thin', 'thinly', 'thickly', 'thick', 'soft', 'large', 'ripe', 'large', 'pressed', 'jar', 'rinsed', 'well', 'dash', 'can'])
         stop = set(stopwords.words('english'))
         return stop.union(recipe_stopwords)
 
@@ -43,9 +43,9 @@ class NLPProcessor(object):
             tokens.append(' '.join(lemmers))
         return tokens
 
-    def get_tfidf(self, ids):
+    def make_tfidf(self, ids):
         for recipe_id in ids:
-            recipe = RECIPE_COLLECTION.find_one({'recipe_id': recipe_id})
+            recipe = RECIPE_COLLECTION.find_one({'recipe_id': str(recipe_id)})
             if recipe:
                 text = recipe['ingredients']
                 text.extend(recipe['taxonomy'])
