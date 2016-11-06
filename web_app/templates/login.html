@@ -1,0 +1,18 @@
+{% extends 'layout.html' %}
+
+{% block login %}
+<hr class="featurette-divider">
+<div class="container">
+  <br>
+  <h4>Enter User-ID for Recipe Recommendation:</h4>
+  <br>
+  <form action="" class="form-inline" method="post">
+    <input type="text" class="form-control" placeholder="User ID" name="user_id" value="{{request.form.user_id}}">
+    <input class="btn btn-default" type="submit" value="Recommend">
+  </form>
+  <font color='red'>{{error}}</font>
+</div>
+{% endblock %}
+
+{% block content %}
+{% endblock %}

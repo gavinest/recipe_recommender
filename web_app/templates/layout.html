@@ -58,7 +58,7 @@
                         <a href="/">About the Project</a>
                     </li> -->
                     <li>
-                        <a href="/recommend">Recipe Recommender</a>
+                        <a href="/login">Recipe Recommender</a>
                     </li>
                     <li>
                         <a href="/contact">Contact</a>
@@ -71,18 +71,33 @@
     </nav>
 
     <!-- Full Width Image Header -->
-    {% block image_header %}
     <header class="header-image">
         <div class="headline">
             <div class="container">
                 <h2>Recipe Recommender</h2>
                 <h3>Make Good Food. Save Money.</h3>
             </div>
+            {% block login %}
+            {% endblock %}
         </div>
     </header>
-    {% endblock %}
-    {% block content %}{% endblock %}
 
+    {% block content %}
+    {% endblock %}
+
+<div class="container">
+    <hr class="featurette-divider">
+    <!-- Footer -->
+    <footer>
+        <div class="row">
+            <div class="col-lg-12">
+                <p>Copyright &copy; Your Website 2014</p>
+            </div>
+        </div>
+
+    <hr class="featurette-divider">
+    </footer>
+</div>
     <!-- jQuery -->
     <script src="../static/js/jquery.js"></script>
 
