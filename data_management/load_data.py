@@ -21,7 +21,7 @@ class DataLoader(object):
         self.n_users = n_users
         self.recipe_idx = {}
         self.user_idx = {}
-        self._to_matrix()
+        # self._to_matrix()
         self.to_dataframe()
 
     def _to_matrix(self):
@@ -52,7 +52,7 @@ class DataLoader(object):
         sends specified number of users to pandas dataframe.
         '''
         ary = np.zeros((1,3))
-        for user in USER_COLLECTION.find().limit(self.n_users):
+        for user in USER_COLLECTION.find()limit(self.n_users):
             user_id = user['user_id']
             for review in user['ratings']:
                 tmp_ary = np.array([user_id, review.keys()[0], review.values()[0]])
