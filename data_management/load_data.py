@@ -3,6 +3,8 @@ import pandas as pd
 from unidecode import unidecode
 from pymongo import MongoClient
 from scipy import sparse
+import time
+from collections import deque
 
 #global variables
 DB_NAME = 'allrecipes'
@@ -16,53 +18,58 @@ class DataLoader(object):
     Input: int. (number of users to include in data table)
 
     Reads user and recipe data from MonogDB. Allowing outputs of various data types.
+        - sparse matrix
+        - pandas dataframe
+        - pickle file
     '''
     def __init__(self, n_users=None):
         self.n_users = n_users
         self.recipe_idx = {}
         self.user_idx = {}
-        # self._to_matrix()
-        self.to_dataframe()
+        self.recipe_ids = deque()
+        self.user_ids = deque()
 
-    def _to_matrix(self):
+    def to_matrix(self):
         self.n_recipes = RECIPE_COLLECTION.find().count()
-        ratings_dictionary = {}
+        self.ratings_dictionary = {}
 
         #recipes to numpy array and make dictionary of recipe_ids with index in matrix
         for r_idx, recipe in enumerate(RECIPE_COLLECTION.find(), start=0):
             recipe_id = recipe['recipe_id']
             self.recipe_idx[recipe_id] = r_idx
+            self.recipe_ids.append(recipe_id)
 
         for u_idx, user in enumerate(USER_COLLECTION.find().limit(self.n_users), start=0):
             user_id = user['user_id']
             self.user_idx[user_id] = u_idx
+            self.user_ids.append(user_id)
             for review in user['ratings']:
-                if review.keys()[0] in self.recipe_idx:
+                if review.keys()[0] in self.recipe_idx.keys():
                     r_idx = self.recipe_idx[review.keys()[0]]
-                    ratings_dictionary[(u_idx, r_idx)] = review.values()[0]
+                    self.ratings_dictionary[(u_idx, r_idx)] = review.values()[0]
 
         self.sparse_mat = sparse.dok_matrix((self.n_users, self.n_recipes))
-        for idx, rating in ratings_dictionary.iteritems():
+        for idx, rating in self.ratings_dictionary.iteritems():
             self.sparse_mat[idx] = rating
 
         self.sparse_mat.transpose().tocsr()
 
     def to_dataframe(self):
+        self.to_matrix()
+        df = pd.DataFrame(self.sparse_mat.toarray(), index=self.user_ids, columns=self.recipe_ids, dtype='int64')
+        df.reset_index()
+        df = pd.melt(df, id_vars=[0], value_vars=df.columns.tolist())
+        df.columns = ['user_id', 'recipe_id', 'rating']
+        self.df = df[df['rating'] != 0]
+
+    def to_pickle(self, filename):
         '''
-        sends specified number of users to pandas dataframe.
+        input: string
         '''
-        ary = np.zeros((1,3))
-        cursor = USER_COLLECTION.find(no_cursor_timeout=True).limit(self.n_users)
-        count = 0
-        for user in cursor:
-            user_id = user['user_id']
-            for review in user['ratings']:
-                tmp_ary = np.array([user_id, review.keys()[0], review.values()[0]])
-                ary = np.vstack((ary, tmp_ary))
-            count += 1
-            print 'User {} added!'.format(count)
-        cursor.close()
-        self.df = pd.DataFrame(data=ary[1:,:], columns=['user_id', 'recipe_id', 'rating'], dtype='int64')
+        path = '/Users/Gavin/ds/recipe_recommender/data_management/'
+        self.to_dataframe()
+        self.df.to_pickle(path + filename)
+
 
     def get_one_user(self, user_id):
         reviews = USER_COLLECTION.find_one({'user_id': user_id})['ratings']
@@ -84,6 +91,13 @@ class DataLoader(object):
         return recipe_cards
 
 
+if __name__ == '__main__':
+    start = time.time()
 
-# if __name__ == '__main__':
-#     d = DataLoader(1000)
+    d = DataLoader(10000)
+    d.to_pickle('test_data.pkl')
+
+    total_time = time.time()-start
+    print total_time
+
+    # df = pd.read_pickle('data.pkl')
