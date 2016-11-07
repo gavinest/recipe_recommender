@@ -52,11 +52,16 @@ class DataLoader(object):
         sends specified number of users to pandas dataframe.
         '''
         ary = np.zeros((1,3))
-        for user in USER_COLLECTION.find()limit(self.n_users):
+        cursor = USER_COLLECTION.find(no_cursor_timeout=True).limit(self.n_users)
+        count = 0
+        for user in cursor:
             user_id = user['user_id']
             for review in user['ratings']:
                 tmp_ary = np.array([user_id, review.keys()[0], review.values()[0]])
                 ary = np.vstack((ary, tmp_ary))
+            count += 1
+            print 'User {} added!'.format(count)
+        cursor.close()
         self.df = pd.DataFrame(data=ary[1:,:], columns=['user_id', 'recipe_id', 'rating'], dtype='int64')
 
     def get_one_user(self, user_id):
@@ -82,17 +87,3 @@ class DataLoader(object):
 
 # if __name__ == '__main__':
 #     d = DataLoader(1000)
-
-
-    # def recipe_ratings_df():
-    #     '''
-    #     loads recipe id and ratings to Pandas DF from MongoDB
-    #     '''
-    #     n = RECIPE_COLLECTION.find().count()
-    #     ary = np.zeros((n, 2))
-    #     for i, recipe in enumerate(RECIPE_COLLECTION.find()):
-    #         ary[i,0] = recipe['recipe_id']
-    #         ary[i,1] = unidecode(recipe['rating'][0])
-    #     df = pd.DataFrame(data=ary, columns=['recipe_id', 'rating'])
-    #     df['recipe_id'] = df['recipe_id'].astype('int64')
-    #     return df

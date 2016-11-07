@@ -7,6 +7,7 @@ import sys
 sys.path.append('/Users/Gavin/ds/recipe_recommender')
 from data_management.load_data import DataLoader
 from nlp.clean_recipes import NLPProcessor
+from collections import defaultdict
 
 #load nlp data
 def get_nlp(df):
@@ -24,6 +25,20 @@ def baseline_model(train_set, test_set, item_data=None):
     test_rmse = gl.evaluation.rmse(targets=test_set['rating'], predictions=model.predict(test_set))
     return model, train_rmse, test_rmse
 
+
+
+# def score_models(train_set, test_set, recommenders, recommender_names=None):
+#     #train_test_split
+#     trained_models = train_models(train_set, recommenders)
+#     rmse = []
+#     for model in trained_models:
+#         rmse.append(gl.evaluation.rmse(targets=test_set['rating'], predictions=model.predict(test_set)))
+#
+#     if recommender_names:
+#         print 'Model    |   Score'
+#         for name, score in zip(recommender_names, rmse):
+#             print '{0}   |   {1}'.format(name, score)
+
 def train_models(train_set, recommenders):
     trained_models = []
     for recommender in recommenders:
@@ -31,18 +46,20 @@ def train_models(train_set, recommenders):
         trained_models.append(model)
     return trained_models
 
-def score_models(train_set, test_set, recommenders, recommender_names=None):
-    #train_test_split
-    trained_models = train_models(train_set, recommenders)
-    rmse = []
-    for model in trained_models:
-        rmse.append(gl.evaluation.rmse(targets=test_set['rating'], predictions=model.predict(test_set)))
+def kfolds(sf, model_list, model_names):
+    '''
+    Input: List of models to train
+    '''
+    rmse_dct = defaultdict(list)
 
-    if recommender_names:
-        print 'Model    |   Score'
-        for name, score in zip(recommender_names, rmse):
-            print '{0}   |   {1}'.format(name, score)
 
+    folds = gl.cross_validation.KFold(sf, num_folds=5)
+    for train_set, test_set in folds:
+            trained_models = train_models(train_set, model_list)
+            eval_results = gl.recommender.util.compare_models(test_set, models=trained_models, model_names=recommender_names, metric='rmse', target='rating')
+            for i, result in enumerate(eval_results):
+                rmse_dct[model_names[i]].append(result['rmse_overall'])
+    return rmse_dct
 
 if __name__ == '__main__':
     '''
@@ -59,7 +76,6 @@ if __name__ == '__main__':
     #list o' recommenders
     recommenders = [
             gl.item_similarity_recommender,
-            # gl.item_content_recommender,
             gl.factorization_recommender,
             gl.ranking_factorization_recommender,
             gl.popularity_recommender,
@@ -67,24 +83,27 @@ if __name__ == '__main__':
 
     recommender_names = [
                         'item_similarity_recommender',
-                        # 'item_content_recommender',
                         'factorization_recommender',
                         'ranking_factorization_recommender',
-                        'popularity_recommender']
+                        'popularity_recommender'
+                        ]
 
     sf = gl.SFrame(pd.read_pickle('../eda/test_data.pkl'))
 
     #train_test_split
-    train_set, test_set = sf.random_split(0.75, seed=42)
+    # train_set, test_set = sf.random_split(0.75, seed=42)
+    train_set, test_set = gl.recommender.util.random_split_by_user(sf, user_id='user_id', item_id='recipe_id', item_test_proportion=.25, random_seed=42)
 
     #control which functions to actually run here.
-    baseline_model, train_rmse, test_rmse = baseline_model(train_set, test_set)
+    # baseline_model, train_rmse, test_rmse = baseline_model(train_set, test_set)
     # trained_models = train_models(train_set, recommenders)
 
-    # s = gl.recommender.util.compare_models(train_set, models=trained_models, model_names=recommender_names, metric='rmse', target='rating')
+    # s = gl.recommender.util.compare_models(test_set, models=trained_models, model_names=recommender_names, metric='rmse', target='rating')
     # print 'Model    |   Score'
-    # test = zip(recommender_names, s)
-    #     # print '{0}   |   {1}'.format(name, result['rsme_overall'])
+    # for name, result in zip(recommender_names, s):
+    #     print '{0}   |   {1}'.format(name, result['rsme_overall'])
+
+    d = kfolds(sf, model_list=recommenders, model_names=recommender_names)
 
     '''
     rmse_overall according to GL
@@ -105,9 +124,6 @@ if __name__ == '__main__':
     ranking_factorization_recommender   |   1.81056636023
     popularity_recommender   |   1.06330192504
     '''
-
-    score_models(train_set, test_set, recommenders=recommenders, recommender_names=recommender_names)
-
 
     # model.save('model')
 
