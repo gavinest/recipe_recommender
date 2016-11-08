@@ -5,8 +5,6 @@ from pymongo import MongoClient
 from scipy import sparse
 import time
 from collections import deque
-# sys.path.append('/Users/Gavin/ds/recipe_recommender/scrapers/recipes')
-# from allrecipes_threader import RecipeThreader
 
 #global variables
 DB_NAME = 'allrecipes'
@@ -42,7 +40,8 @@ class DataLoader(object):
             self.recipe_idx[recipe_id] = r_idx
             self.recipe_ids.append(recipe_id)
 
-        for u_idx, user in enumerate(USER_COLLECTION.find(), start=0): #.limit(self.n_users)
+        user_cursor = USER_COLLECTION.find(no_cursor_timeout=True).limit(self.n_users)
+        for u_idx, user in enumerate(user_cursor, start=0): #
             user_id = user['user_id']
             self.user_idx[user_id] = u_idx
             self.user_ids.append(user_id)
@@ -51,6 +50,7 @@ class DataLoader(object):
                 if review.keys()[0] in self.recipe_idx.keys():
                     r_idx = self.recipe_idx[review.keys()[0]]
                     self.ratings_dictionary[(u_idx, r_idx)] = review.values()[0]
+        user_cursor.close()
 
         self.sparse_mat = sparse.dok_matrix((self.n_users, self.n_recipes))
         for idx, rating in self.ratings_dictionary.iteritems():
@@ -107,8 +107,8 @@ class DataLoader(object):
 if __name__ == '__main__':
     start = time.time()
 
-    d = DataLoader()
-    d.to_pickle('data.pkl')
+    d = DataLoader(100)
+    d.to_pickle('data_1H.pkl')
     # d.to_dataframe()
 
     total_time = time.time()-start

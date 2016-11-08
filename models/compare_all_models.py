@@ -4,21 +4,42 @@ import graphlab as gl
 import matplotlib.pyplot as plt
 plt.style.use('ggplot')
 import sys
-# from sklearn.pipelines import Pipeline
 sys.path.append('/Users/Gavin/ds/recipe_recommender')
 from data_management.load_data import DataLoader
 from nlp.clean_recipes import NLPProcessor
 from collections import defaultdict
+from pymongo import MongoClient
+
+#global variables
+DB_NAME = 'allrecipes'
+CLIENT = MongoClient()
+DATABASE = CLIENT[DB_NAME]
+RECIPE_COLLECTION = DATABASE['recipes']
+USER_COLLECTION = DATABASE['users']
 
 #load nlp data
 def get_nlp(df):
     print 'Getting NLP...'
     nlp_processor = NLPProcessor()
-    nlp_processor.make_tfidf(df['recipe_id'].values)
+    df = nlp_processor.recipe_text_to_df(df['recipe_id'].values, filename='nlp_vectorizer.pkl')
     #send returned pandas df to sframe
-    nlp_data = gl.SFrame(nlp_processor.tfidf.toarray())
-    nlp_data.rename({'X1': 'recipe_id'})
-    return nlp_data
+    df = df[0].apply(lambda x: x.flatten())
+    nlp_sf = gl.SFrame(df)
+    nlp_sf.rename({'X1': 'recipe_id'})
+    return df, nlp_sf
+
+#get avg rating data
+def get_avg_rating(df):
+    print 'Getting avg rating data'
+    avg_ratings = []
+    for recipe_id in df['recipe_id'].values:
+        card = RECIPE_COLLECTION.find_one({'recipe_id' : recipe_id})
+        avg_ratings.append([float(card['rating'][0]), int(card['num_reviews'][0])])
+    avg_rating_sf = gl.SFrame(np.array(avg_ratings))
+    avg_rating_sf.rename({'X1': 'recipe_id'})
+    return avg_rating_sf
+    # return avg_ratings
+
 
 def baseline_model(train_set, test_set, item_data=None):
     model = gl.recommender.create(sf, user_id='user_id', item_id='recipe_id', target='rating', item_data=item_data)
@@ -92,35 +113,79 @@ if __name__ == '__main__':
                         ]
 
     #load data
-    df = pd.read_pickle('../data_management/test_data.pkl')
-    nlp_sf = get_nlp(df)
+    df = pd.read_pickle('../data_management/data_1H.pkl')
     sf = gl.SFrame(df)
 
     #train_test_split
     # train_set, test_set = sf.random_split(0.75, seed=42)
-    train_set, test_set = gl.recommender.util.random_split_by_user(sf, user_id='user_id', item_id='recipe_id', item_test_proportion=.25, random_seed=42)
+
+    # train_set, test_set = gl.recommender.util.random_split_by_user(sf, user_id='user_id', item_id='recipe_id', item_test_proportion=.25, random_seed=42)
+
+    #load additional features here
+    nlp_df = get_nlp(df)
+    nlp_df.to_pickle('nlp_1Hdata.pkl')
+    # avg_ratings = get_avg_rating(df)
 
     #control which functions to actually run here.
-    baseline_model, train_rmse, test_rmse = baseline_model(train_set, test_set, item_data=nlp.sf)
-    '''
-    without nlp:
-
-    with nlp:
-
-    '''
+    # baseline_model, train_rmse, test_rmse = baseline_model(train_set, test_set, item_data=nlp_sf)
     # trained_models = train_models(train_set, recommenders)
 
-    models, models_rmse = kfolds(train_set, model_list=recommenders, model_names=recommender_names, item_data=nlp_sf)
-    plot_error(models_rmse, save_as='test_nlp.jpg')
-    plt.show()
+    # models, models_rmse = kfolds(sf, model_list=recommenders, model_names=recommender_names, item_data=None)
+    # plot_error(models_rmse, save_as='test_nlp.jpg')
+    # plt.show()
 
     # fr = train_one(sf, recommender=gl.factorization_recommender)
 
     '''
-    factorization_recommender 1.01312528315
-    ranking_factorization_recommender 1.15281151156
-    item_similarity_recommender 4.52668214059
+    BASELINE
+
+    1k dataset (no item data)
+
+
+    1k dataset (nlp_data)
+
+
+
+    1K dataset
+    without additional item data
+    factorization_recommender 0.89364053205
+    ranking_factorization_recommender 0.947981843138
+    item_similarity_recommender 4.53224970378
+    popularity_recommender 0.898589811666
+
+    with nlp data:
+    factorization_recommender 0.893915631704
+    ranking_factorization_recommender 0.948105300499
+    item_similarity_recommender 4.53225004309
+    popularity_recommender 0.898589811666
+
+    with avg_ratings
+    factorization_recommender 0.893621611773
+    ranking_factorization_recommender 0.947868617735
+    item_similarity_recommender 4.53224992839
+    popularity_recommender 0.898589811666
+
+    ----
+
+    10K dataset
+    models with nlp: test_data test
+    factorization_recommender 1.01640391824
+    ranking_factorization_recommender 1.15228619831
+    item_similarity_recommender 4.52668347749
     popularity_recommender 1.001186525
+
+    models without nlp: test_data test
+    factorization_recommender 1.01343448907
+    ranking_factorization_recommender 1.15311581939
+    item_similarity_recommender 4.52668307159
+    popularity_recommender 1.001186525
+
+    models with avg_ratings item data: test_data
+    factorization_recommender 1.01744743967
+    ranking_factorization_recommender 1.15266287541
+    item_similarity_recommender 4.52668406905
+    popularity_recommender 1.001186525
+
     '''
 
     # fr.save('model')

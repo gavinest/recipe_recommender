@@ -4,6 +4,7 @@
 *.txt
 *.pkl
 *.ipynb
+*.jpg
 
 #ignore directories
 eda/

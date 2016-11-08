@@ -4,6 +4,8 @@ from nltk.stem.wordnet import WordNetLemmatizer
 from string import punctuation
 from unidecode import unidecode
 from sklearn.feature_extraction.text import TfidfVectorizer
+import cPickle as pickle
+import pandas as pd
 import sys
 sys.path.append('/Users/Gavin/ds/recipe_recommender')
 from data_management.load_data import DataLoader
@@ -30,7 +32,7 @@ class NLPProcessor(object):
         self.vectorizer = vectorizer(**kwargs)
 
     def _stop_words(self):
-        recipe_stopwords = set(['pound', 'pounds', 'tablespoon', 'tablespoons', 'teaspoon', 'teaspoons', 'cup', 'cups', 'bunch', 'chopped', 'diced', 'crushed', 'inch', 'sliced', 'optional', 'desired', 'ounce', 'ounces', 'fresh', 'piece', 'pinch', 'sprinkling', 'peeled', 'taste', 'quartered', 'halved', 'half', 'divided', 'lengthwise', 'box', 'package', 'packaged', 'uncooked', 'cooked', 'seared', 'drained', 'trimmed', 'mashed', 'grated', 'ground', 'shredded', 'cut', 'cube', 'cubed', 'prepared', 'fresh', 'freshly', 'dried', 'fresh', 'beaten', 'lightly', 'light', 'room', 'temperature', 'skinless', 'boneless', 'half', 'chunk', 'yummy', 'snipped', 'fillet', 'whole', 'husk', 'removed', 'thin', 'thinly', 'thickly', 'thick', 'soft', 'large', 'ripe', 'large', 'pressed', 'jar', 'rinsed', 'well', 'dash', 'can'])
+        recipe_stopwords = set(['pound', 'pounds', 'tablespoon', 'tablespoons', 'teaspoon', 'teaspoons', 'cup', 'cups', 'bunch', 'chopped', 'diced', 'crushed', 'inch', 'sliced', 'optional', 'desired', 'ounce', 'ounces', 'fresh', 'piece', 'pinch', 'sprinkling', 'peeled', 'taste', 'quartered', 'halved', 'half', 'divided', 'lengthwise', 'box', 'package', 'packaged', 'uncooked', 'cooked', 'seared', 'drained', 'trimmed', 'mashed', 'grated', 'ground', 'shredded', 'cut', 'cube', 'cubed', 'prepared', 'fresh', 'freshly', 'dried', 'fresh', 'beaten', 'lightly', 'light', 'room', 'temperature', 'skinless', 'boneless', 'half', 'chunk', 'yummy', 'snipped', 'fillet', 'whole', 'husk', 'removed', 'thin', 'thinly', 'thickly', 'thick', 'soft', 'large', 'ripe', 'large', 'pressed', 'jar', 'rinsed', 'well', 'dash', 'can', 'melted', 'thawed', 'softened', 'degree', 'degrees', 'c', 'finely'])
         stop = set(stopwords.words('english'))
         return stop.union(recipe_stopwords)
 
@@ -43,24 +45,51 @@ class NLPProcessor(object):
             tokens.append(' '.join(lemmers))
         return tokens
 
-    def make_tfidf(self, ids):
-        for recipe_id in ids:
-            print recipe_id
-            recipe = RECIPE_COLLECTION.find_one({'recipe_id': str(recipe_id)})
-            if recipe:
-                text = recipe['ingredients']
-                try:
-                    text.extend(recipe['taxonomy'])
-                except KeyError:
-                    continue
-                for word in recipe['name'].split('-'):
-                    text.append(word)
-                self.documents.append(self._tokenize(text))
-            else:
-                self.documents.append(' ')
+    def fit_vectorizor(self, pkl=True):
+        recipe_cursor = RECIPE_COLLECTION.find(no_cursor_timeout=True)#.limit(100)
+        for recipe in recipe_cursor:
+            text = recipe['ingredients']
+            try:
+                text.extend(recipe['taxonomy'])
+            except KeyError:
+                continue
+            for word in recipe['name'].split('-'):
+                text.append(word)
+            self.documents.append(self._tokenize(text))
 
         self.tfidf = self.vectorizer.fit_transform(self.documents)
+        if pkl:
+            with open("nlp_vectorizer.pkl", 'w') as f:
+                pickle.dump(self.vectorizer, f)
 
+    def get_recipe_text(self, recipe_id):
+        recipe = RECIPE_COLLECTION.find_one({'recipe_id': str(recipe_id)})
+        if recipe:
+            text = recipe['ingredients']
+            try:
+                text.extend(recipe['taxonomy'])
+            except KeyError:
+                next
+            for word in recipe['name'].split('-'):
+                text.append(word)
+            return text
+
+    def recipe_text_to_df(self, ids, filename, from_pickle=True):
+        if from_pickle:
+            path = '/Users/Gavin/ds/recipe_recommender/nlp/'
+            with open(path + filename) as f_un:
+                vect = pickle.load(f_un)
+        else:
+                self.fit_vectorizor()
+                vect = self.vectorizer
+
+        document_text_matrices= []
+        for recipe_id in ids:
+            mat = vect.transform(self.get_recipe_text(recipe_id))
+            document_text_matrices.append(mat.toarray())
+        df = pd.DataFrame(document_text_matrices)
+        return df
+        
     def test(self, num_recipes=1):
         recipe_ids = []
         for recipe in RECIPE_COLLECTION.find().limit(num_recipes):
@@ -95,5 +124,7 @@ if __name__ == '__main__':
                  u'13010',
                  u'237093',
                  u'231067']
-    t.get_tfidf(test_ids)
-    t.vectorizer.vocabulary_
+    # t.make_tfidf(test_ids)
+    # t.vectorizer.vocabulary_
+    # t.fit_vectorizor()
+    test = t.recipe_text_to_df(test_ids, filename='nlp_vectorizer.pkl')
