@@ -45,10 +45,14 @@ class NLPProcessor(object):
 
     def make_tfidf(self, ids):
         for recipe_id in ids:
+            print recipe_id
             recipe = RECIPE_COLLECTION.find_one({'recipe_id': str(recipe_id)})
             if recipe:
                 text = recipe['ingredients']
-                text.extend(recipe['taxonomy'])
+                try:
+                    text.extend(recipe['taxonomy'])
+                except KeyError:
+                    continue
                 for word in recipe['name'].split('-'):
                     text.append(word)
                 self.documents.append(self._tokenize(text))

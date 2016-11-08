@@ -48,10 +48,10 @@ def login():
     return render_template('login.html', error=error)
 
 if __name__ == '__main__':
-    data = DataLoader(10)
-    data.to_dataframe()
-    print data.user_idx
-    df = data.df
+    # data = DataLoader(10)
+    # data.to_dataframe()
+    # print data.user_idx
+    # df = data.df
     model = gl.load_model('../models/model')
 
     app.run(host='0.0.0.0', port=8080, debug=True)

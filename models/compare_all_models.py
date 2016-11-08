@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import graphlab as gl
 import matplotlib.pyplot as plt
+plt.style.use('ggplot')
 import sys
 # from sklearn.pipelines import Pipeline
 sys.path.append('/Users/Gavin/ds/recipe_recommender')
@@ -14,7 +15,7 @@ def get_nlp(df):
     print 'Getting NLP...'
     nlp_processor = NLPProcessor()
     nlp_processor.make_tfidf(df['recipe_id'].values)
-    #send return pandas df to sframe
+    #send returned pandas df to sframe
     nlp_data = gl.SFrame(nlp_processor.tfidf.toarray())
     nlp_data.rename({'X1': 'recipe_id'})
     return nlp_data
@@ -25,54 +26,56 @@ def baseline_model(train_set, test_set, item_data=None):
     test_rmse = gl.evaluation.rmse(targets=test_set['rating'], predictions=model.predict(test_set))
     return model, train_rmse, test_rmse
 
-
-
-# def score_models(train_set, test_set, recommenders, recommender_names=None):
-#     #train_test_split
-#     trained_models = train_models(train_set, recommenders)
-#     rmse = []
-#     for model in trained_models:
-#         rmse.append(gl.evaluation.rmse(targets=test_set['rating'], predictions=model.predict(test_set)))
-#
-#     if recommender_names:
-#         print 'Model    |   Score'
-#         for name, score in zip(recommender_names, rmse):
-#             print '{0}   |   {1}'.format(name, score)
-
-def train_models(train_set, recommenders):
+def train_models(train_set, recommenders, item_data=None):
     trained_models = []
     for recommender in recommenders:
-        model = recommender.create(train_set, user_id='user_id', item_id='recipe_id', target='rating')
+        model = recommender.create(train_set, user_id='user_id', item_id='recipe_id', target='rating', item_data=item_data)
         trained_models.append(model)
     return trained_models
 
-def kfolds(sf, model_list, model_names):
+def kfolds(sf, model_list, model_names, item_data=None):
     '''
     Input: List of models to train
     '''
     rmse_dct = defaultdict(list)
-
-
     folds = gl.cross_validation.KFold(sf, num_folds=5)
     for train_set, test_set in folds:
-            trained_models = train_models(train_set, model_list)
+            trained_models = train_models(train_set, model_list, item_data=item_data)
             eval_results = gl.recommender.util.compare_models(test_set, models=trained_models, model_names=recommender_names, metric='rmse', target='rating')
             for i, result in enumerate(eval_results):
                 rmse_dct[model_names[i]].append(result['rmse_overall'])
-    return rmse_dct
+    return trained_models, rmse_dct
+
+def train_one(sf, recommender, item_data=None):
+    model = gl.recommender.create(sf, user_id='user_id', item_id='recipe_id', target='rating', item_data=item_data)
+    return model
+
+def plot_error(rmse_dct, save_as=None):
+    names = rmse_dct.keys()
+    rmses = [np.mean(_) for _ in rmse_dct.values()]
+    colors = list('brgk')
+
+    fig, axes = plt.subplots(2,2, figsize=(8,8), sharey=True)
+    for i, ax in enumerate(axes.flatten()):
+        ax.scatter(1, rmses[i], color=colors[i])
+        ax.set_title(names[i])
+
+        ax.tick_params(
+        axis='x',          # changes apply to the x-axis
+        which='both',      # both major and minor ticks are affected
+        bottom='off',      # ticks along the bottom edge are off
+        top='off',         # ticks along the top edge are off
+        labelbottom='off')
+
+    # plt.title('RMSE Comparison of Recommenders')
+    # plt.legend(loc='best')
+    plt.ylim(0, 5.0)
+    plt.yticks(np.arange(0.0, 5.0, 0.5))
+
+    if save_as:
+        plt.savefig(save_as)
 
 if __name__ == '__main__':
-    '''
-    graphlab recommender models:
-        ['item_similarity_recommender',
-        'item_content_recommender',
-        'factorization_recommender',
-        'ranking_factorization_recommender',
-        'popularity_recommender']
-    Models must already be trained before entering into the gl.recommender.util.compare_models()
-
-    graphlab.recommender.util.compare_models(dataset, models, model_names=None, user_sample=1.0, metric='auto', target=None, exclude_known_for_precision_recall=True, make_plot=False, verbose=True, **kwargs)
-    '''
     #list o' recommenders
     recommenders = [
             gl.item_similarity_recommender,
@@ -88,50 +91,36 @@ if __name__ == '__main__':
                         'popularity_recommender'
                         ]
 
-    sf = gl.SFrame(pd.read_pickle('../eda/test_data.pkl'))
+    #load data
+    df = pd.read_pickle('../data_management/test_data.pkl')
+    nlp_sf = get_nlp(df)
+    sf = gl.SFrame(df)
 
     #train_test_split
     # train_set, test_set = sf.random_split(0.75, seed=42)
     train_set, test_set = gl.recommender.util.random_split_by_user(sf, user_id='user_id', item_id='recipe_id', item_test_proportion=.25, random_seed=42)
 
     #control which functions to actually run here.
-    # baseline_model, train_rmse, test_rmse = baseline_model(train_set, test_set)
+    baseline_model, train_rmse, test_rmse = baseline_model(train_set, test_set, item_data=nlp.sf)
+    '''
+    without nlp:
+
+    with nlp:
+
+    '''
     # trained_models = train_models(train_set, recommenders)
 
-    # s = gl.recommender.util.compare_models(test_set, models=trained_models, model_names=recommender_names, metric='rmse', target='rating')
-    # print 'Model    |   Score'
-    # for name, result in zip(recommender_names, s):
-    #     print '{0}   |   {1}'.format(name, result['rsme_overall'])
+    models, models_rmse = kfolds(train_set, model_list=recommenders, model_names=recommender_names, item_data=nlp_sf)
+    plot_error(models_rmse, save_as='test_nlp.jpg')
+    plt.show()
 
-    d = kfolds(sf, model_list=recommenders, model_names=recommender_names)
+    # fr = train_one(sf, recommender=gl.factorization_recommender)
 
     '''
-    rmse_overall according to GL
-    item_similarity_recommender 3.7831458378
-    factorization_recommender 0.0270346385972
-    ranking_factorization_recommender 0.101505661109
-    popularity_recommender 0.33221817048
-
-    rmse_overall for baseline_model according to GL
-    #baseline_model.evaluate_rmse(test_set, target='rating')
-    RankingFactorizationRecommender
-    'rmse_overall': 0.7197888635612298}
-
-    rmse_according to my scoring function
-    Model    |   Score
-    item_similarity_recommender   |   4.36269213092
-    factorization_recommender   |   1.03286681888
-    ranking_factorization_recommender   |   1.81056636023
-    popularity_recommender   |   1.06330192504
+    factorization_recommender 1.01312528315
+    ranking_factorization_recommender 1.15281151156
+    item_similarity_recommender 4.52668214059
+    popularity_recommender 1.001186525
     '''
 
-    # model.save('model')
-
-    # #get results for bringing into web_app
-    # test_user = 827351
-    # recommendations = popularity_model.recommend([test_user], k=5)
-    # predicted_ratings = [rec['score'] for rec in recommendations]
-    #
-    # #get recommended recipe cards from DataLoader
-    # recommended_recipes = [rec['recipe_id'] for rec in recommendations]
-    # recipe_cards = data_loader.pull_recipe_data(recommended_recipes)
+    # fr.save('model')

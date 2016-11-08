@@ -5,6 +5,8 @@ from pymongo import MongoClient
 from scipy import sparse
 import time
 from collections import deque
+# sys.path.append('/Users/Gavin/ds/recipe_recommender/scrapers/recipes')
+# from allrecipes_threader import RecipeThreader
 
 #global variables
 DB_NAME = 'allrecipes'
@@ -28,6 +30,7 @@ class DataLoader(object):
         self.user_idx = {}
         self.recipe_ids = deque()
         self.user_ids = deque()
+        self.all_recipe_ids = set()
 
     def to_matrix(self):
         self.n_recipes = RECIPE_COLLECTION.find().count()
@@ -39,11 +42,12 @@ class DataLoader(object):
             self.recipe_idx[recipe_id] = r_idx
             self.recipe_ids.append(recipe_id)
 
-        for u_idx, user in enumerate(USER_COLLECTION.find().limit(self.n_users), start=0):
+        for u_idx, user in enumerate(USER_COLLECTION.find(), start=0): #.limit(self.n_users)
             user_id = user['user_id']
             self.user_idx[user_id] = u_idx
             self.user_ids.append(user_id)
             for review in user['ratings']:
+                self.all_recipe_ids.add(review.keys()[0])
                 if review.keys()[0] in self.recipe_idx.keys():
                     r_idx = self.recipe_idx[review.keys()[0]]
                     self.ratings_dictionary[(u_idx, r_idx)] = review.values()[0]
@@ -57,8 +61,8 @@ class DataLoader(object):
     def to_dataframe(self):
         self.to_matrix()
         df = pd.DataFrame(self.sparse_mat.toarray(), index=self.user_ids, columns=self.recipe_ids, dtype='int64')
-        df.reset_index()
-        df = pd.melt(df, id_vars=[0], value_vars=df.columns.tolist())
+        df.reset_index(inplace=True)
+        df = pd.melt(df, id_vars=['index'], value_vars=df.columns.tolist()[1:])
         df.columns = ['user_id', 'recipe_id', 'rating']
         self.df = df[df['rating'] != 0]
 
@@ -69,7 +73,6 @@ class DataLoader(object):
         path = '/Users/Gavin/ds/recipe_recommender/data_management/'
         self.to_dataframe()
         self.df.to_pickle(path + filename)
-
 
     def get_one_user(self, user_id):
         reviews = USER_COLLECTION.find_one({'user_id': user_id})['ratings']
@@ -90,12 +93,23 @@ class DataLoader(object):
             recipe_cards.append(RECIPE_COLLECTION.find_one({'recipe_id': str(recipe_id)}))
         return recipe_cards
 
+    def add_recipes(self, ids):
+        '''
+        input: list or recipe_ids
+        '''
+        print '{} Total recipes to get.'.format(len(ids))
+        for recipe_id in ids:
+            link = '/recipe/' + str(recipe_id)
+            r = RecipeThreader(link)
+            RECIPE_COLLECTION.insert_one(worker.entry)
+        print 'all recipes added!'
 
 if __name__ == '__main__':
     start = time.time()
 
-    d = DataLoader(10000)
-    d.to_pickle('test_data.pkl')
+    d = DataLoader()
+    d.to_pickle('data.pkl')
+    # d.to_dataframe()
 
     total_time = time.time()-start
     print total_time

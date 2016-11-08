@@ -34,7 +34,6 @@ def recipe_data_to_mongo(i):
         # user_data_to_mongo(worker.user_set) #add list of users that reviewed recipe to set
     print 'Page {} Success!'.format(i)
 
-
 def user_data_to_mongo(users):
     workers = []
     for user in users:
