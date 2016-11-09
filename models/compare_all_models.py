@@ -122,28 +122,38 @@ if __name__ == '__main__':
     # train_set, test_set = gl.recommender.util.random_split_by_user(sf, user_id='user_id', item_id='recipe_id', item_test_proportion=.25, random_seed=42)
 
     #load additional features here
-    nlp_df = get_nlp(df)
-    nlp_df.to_pickle('nlp_1Hdata.pkl')
+    # nlp_df, nlp_sf = get_nlp(df)
+    # nlp_df.to_pickle('nlp_1Hdata.pkl')
+    # nlp_df = pd.read_pickle('nlp_1Hdata.pkl')
+    # nlp_sf = gl.SFrame(nlp_df)
+    # nlp_sf.rename({'X1': 'recipe_id'})
+
     # avg_ratings = get_avg_rating(df)
 
     #control which functions to actually run here.
     # baseline_model, train_rmse, test_rmse = baseline_model(train_set, test_set, item_data=nlp_sf)
     # trained_models = train_models(train_set, recommenders)
 
-    # models, models_rmse = kfolds(sf, model_list=recommenders, model_names=recommender_names, item_data=None)
+    models, models_rmse = kfolds(sf, model_list=recommenders, model_names=recommender_names, item_data=None)
     # plot_error(models_rmse, save_as='test_nlp.jpg')
     # plt.show()
 
     # fr = train_one(sf, recommender=gl.factorization_recommender)
 
     '''
-    BASELINE
+    models
 
-    1k dataset (no item data)
+    1h dataset (no item data)
+    factorization_recommender 0.950535996995
+    ranking_factorization_recommender 1.55995115886
+    item_similarity_recommender 4.45193130763
+    popularity_recommender 0.959436737018
 
-
-    1k dataset (nlp_data)
-
+    1h dataset (nlp_data)
+    factorization_recommender 0.950092272217
+    ranking_factorization_recommender 1.5511279349
+    item_similarity_recommender 4.45193130763
+    popularity_recommender 0.959436737018
 
 
     1K dataset

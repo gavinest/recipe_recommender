@@ -9,4 +9,4 @@
 #ignore directories
 eda/
 research/
-models/model
+models/model/

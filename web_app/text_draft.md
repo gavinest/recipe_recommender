@@ -26,6 +26,31 @@ Goal of model: minimize RMSE or simply make a recommendation the user will like.
   a. Base model  
   GL's recommender package automatically selects a recommender model based on the input data. I allowed this functionality for GL to 'recommend' me a baseline recommender. GL created a RankingFactorizationRecommender from my data. I used as a baseline with the GL default hyper-parameters from which to compare model improvements.
 
+2. Training the model
+
+See Train-Test-Split_Comparison.jpg
+
+Standard Train Test Split
+
+```python
+train_set, test_set = sf.random_split(0.75, seed=42)
+```
+
+Split for recommenders
+
+```python
+train_set, test_set = graphlab.recommender.util.random_split_by_user(sf, user_id='user_id', item_id='recipe_id', item_test_proportion=.25, random_seed=42)
+```
+
+3. SCORING
+For each user, our scoring metric will select the 5% of jokes you thought would be most highly rated by that user. It then looks at the actual ratings (in the test data) that the user gave those jokes. Your score is the average of those ratings.
+
+Thus, for an algorithm to score well, it only needs to identify which jokes a user is likely to rate most highly (so the absolute accuracy of your ratings is less important than the rank ordering).
+
+As mentioned above, your submission should be in the same format as the sample submission file, and the only thing that will be changed is the ratings column. Use src/rec_runner.py as a starting point, as it has a function to create correctly formatted submission files.
+
+
+
 2. Feature engineering
 
   a. NLP
