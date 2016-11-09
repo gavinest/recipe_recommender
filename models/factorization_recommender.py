@@ -90,7 +90,7 @@ if __name__ == '__main__':
 
     #load data
     df = pd.read_pickle('../data_management/data.pkl')
-    df['rating'] = df['rating'].apply(lambda x: x**2)
+    # df['rating'] = df['rating'].apply(lambda x: x**2)
 
     t = optimize_num_user_ratings(recommender, df, num_reviews=range(1,21))
 
@@ -135,3 +135,5 @@ if __name__ == '__main__':
     # [18, 0.38535178422160926, 1.1318140416241094, 1390],
     # [19, 0.38727471653082024, 1.1598174465469326, 1319],
     # [20, 0.3838702710895922, 1.1507788224106603, 1240]]
+
+    # fr.save('model')

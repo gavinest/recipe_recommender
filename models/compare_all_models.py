@@ -113,7 +113,7 @@ if __name__ == '__main__':
                         ]
 
     #load data
-    df = pd.read_pickle('../data_management/data_1H.pkl')
+    df = pd.read_pickle('../data_management/data.pkl')
     sf = gl.SFrame(df)
 
     #train_test_split
@@ -134,11 +134,11 @@ if __name__ == '__main__':
     # baseline_model, train_rmse, test_rmse = baseline_model(train_set, test_set, item_data=nlp_sf)
     # trained_models = train_models(train_set, recommenders)
 
-    models, models_rmse = kfolds(sf, model_list=recommenders, model_names=recommender_names, item_data=None)
+    # models, models_rmse = kfolds(sf, model_list=recommenders, model_names=recommender_names, item_data=None)
     # plot_error(models_rmse, save_as='test_nlp.jpg')
     # plt.show()
 
-    # fr = train_one(sf, recommender=gl.factorization_recommender)
+    fr = train_one(sf, recommender=gl.factorization_recommender)
 
     '''
     models
@@ -198,4 +198,4 @@ if __name__ == '__main__':
 
     '''
 
-    # fr.save('model')
+    fr.save('model')

@@ -43,11 +43,8 @@ train_set, test_set = graphlab.recommender.util.random_split_by_user(sf, user_id
 ```
 
 3. SCORING
-For each user, our scoring metric will select the 5% of jokes you thought would be most highly rated by that user. It then looks at the actual ratings (in the test data) that the user gave those jokes. Your score is the average of those ratings.
 
-Thus, for an algorithm to score well, it only needs to identify which jokes a user is likely to rate most highly (so the absolute accuracy of your ratings is less important than the rank ordering).
-
-As mentioned above, your submission should be in the same format as the sample submission file, and the only thing that will be changed is the ratings column. Use src/rec_runner.py as a starting point, as it has a function to create correctly formatted submission files.
+http://aimotion.blogspot.com/2011/05/evaluating-recommender-systems.html
 
 
 

@@ -17,23 +17,31 @@ class RecScorer(object):
         self.recommender = recommender
         self.n_users = recommender.num_users
         self.sf = test_set
+        users = list(set(self.sf['user_id']))
+        recipes = list(set(self.sf['recipe_id']))
+        self.user_sf = gl.SFrame(users)
+        self.user_sf.rename({'X1': 'user_id'})
+        self.recipe_sf = gl.SFrame(recipes)
+        self.recipe_sf.rename({'X1': 'recipe_id'})
 
     def rmse_of_top_percent(self):
-        users = set(self.sf['user_id'])
-        recs = self.recommender.recommend(list(users), k=100)
-        return recs
+        recs = self.recommender.recommend(self.user_sf, k=100)
+        predictions = self.recommender.predict(self.recipe_sf)
+        return recs, predictions
 
-    def match_ids(self, recs):
-        for pair in recs['recipe_id']
+    # def match_ids(self, recs):
+    #     for pair in recs['recipe_id']
 
 
 if __name__ == '__main__':
     #load data train test model
-    df = pd.read_pickle('data.pkl')
+    df = pd.read_pickle('data_1H.pkl')
     sf = gl.SFrame(df)
     # train_set, test_set = gl.recommender.util.random_split_by_user(sf, user_id='user_id', item_id='recipe_id', item_test_proportion=.25, random_seed=42)
     model = gl.factorization_recommender.create(sf, user_id='user_id', item_id='recipe_id', target='rating', item_data=None)
-    train_rmse = model['training_rmse']
+    # model.save('scorer_test_model')
+    # model = gl.load_model('scorer_test_model')
+    # train_rmse = model['training_rmse']
 
     test = RecScorer(recommender=model, test_set=sf)
-    t = test.rmse_of_top_percent()
+    r, p = test.rmse_of_top_percent()
