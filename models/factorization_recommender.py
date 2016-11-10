@@ -89,7 +89,7 @@ if __name__ == '__main__':
     recommender = gl.factorization_recommender
 
     #load data
-    df = pd.read_pickle('../data_management/data.pkl')
+    df = pd.read_pickle('../data_management/pkls/data.pkl')
     # df['rating'] = df['rating'].apply(lambda x: x**2)
 
     t = optimize_num_user_ratings(recommender, df, num_reviews=range(1,21))

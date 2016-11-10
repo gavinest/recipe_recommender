@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 plt.style.use('ggplot')
 import sys
 sys.path.append('/Users/Gavin/ds/recipe_recommender')
-from data_management.load_data import DataLoader
+from data_management import DataLoader, RecScorer
 from nlp.clean_recipes import NLPProcessor
 from collections import defaultdict
 from pymongo import MongoClient
@@ -39,7 +39,6 @@ def get_avg_rating(df):
     avg_rating_sf.rename({'X1': 'recipe_id'})
     return avg_rating_sf
     # return avg_ratings
-
 
 def baseline_model(train_set, test_set, item_data=None):
     model = gl.recommender.create(sf, user_id='user_id', item_id='recipe_id', target='rating', item_data=item_data)
@@ -113,13 +112,20 @@ if __name__ == '__main__':
                         ]
 
     #load data
-    df = pd.read_pickle('../data_management/data.pkl')
+    df = pd.read_pickle('../data_management/pkls/data.pkl')
     sf = gl.SFrame(df)
 
     #train_test_split
-    # train_set, test_set = sf.random_split(0.75, seed=42)
+    train_set, test_set = gl.recommender.util.random_split_by_user(sf, user_id='user_id', item_id='recipe_id', item_test_proportion=.25, random_seed=42)
 
-    # train_set, test_set = gl.recommender.util.random_split_by_user(sf, user_id='user_id', item_id='recipe_id', item_test_proportion=.25, random_seed=42)
+    trained_models = train_models(train_set, recommenders)
+    fig, axes = plt.subplots(2,2, figsize=(8,8), sharex=True, sharey=True)
+    axes = axes.flatten()
+    for i, model in enumerate(trained_models):
+        score = RecScorer(recommender=model, test_set=test_set)
+        score.rmse_of_top_percent()
+        axes[i] = score.ax
+    plt.show()
 
     #load additional features here
     # nlp_df, nlp_sf = get_nlp(df)
@@ -128,17 +134,11 @@ if __name__ == '__main__':
     # nlp_sf = gl.SFrame(nlp_df)
     # nlp_sf.rename({'X1': 'recipe_id'})
 
-    # avg_ratings = get_avg_rating(df)
-
-    #control which functions to actually run here.
-    # baseline_model, train_rmse, test_rmse = baseline_model(train_set, test_set, item_data=nlp_sf)
-    # trained_models = train_models(train_set, recommenders)
-
     # models, models_rmse = kfolds(sf, model_list=recommenders, model_names=recommender_names, item_data=None)
     # plot_error(models_rmse, save_as='test_nlp.jpg')
     # plt.show()
 
-    fr = train_one(sf, recommender=gl.factorization_recommender)
+    # fr = train_one(sf, recommender=gl.factorization_recommender)
 
     '''
     models
@@ -198,4 +198,4 @@ if __name__ == '__main__':
 
     '''
 
-    fr.save('model')
+    # fr.save('model')
