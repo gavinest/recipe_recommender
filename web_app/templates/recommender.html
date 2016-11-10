@@ -1,133 +1,130 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'rec_base.html' %}
 
-<head>
+{% block content %}
+<hr>
 
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="">
+<!-- Page Content -->
+<div class="container">
 
-    <title>Recipe Recommender</title>
+<!-- Page Header -->
+<div class="row">
+  <div class="col-lg-12">
+      <h1 class="page-header">Your Recommended Recipes
+          <small>Bon Appetite!</small>
+      </h1>
+  </div>
+</div>
 
-    <!-- Bootstrap Core CSS -->
-    <link href="../static/css/bootstrap.min.css" rel="stylesheet">
+<!-- /.row -->
 
-    <!-- Custom CSS -->
-    <link href="../static/css/landing-page.css" rel="stylesheet">
-
-    <!-- Custom Fonts -->
-    <link href="../static/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
-    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
-
-    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
-
-</head>
-
-<body>
-
-    <!-- Navigation -->
-    <nav class="navbar navbar-default navbar-fixed-top topnav" role="navigation">
-            <!-- Collect the nav links, forms, and other content for toggling -->
-            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                <ul class="nav navbar-nav navbar-left">
-                  <li class="dropdown">
-                    <a href="/#" class="dropdown-toggle" data-toggle="dropdown">About the Project</a>
-                    <ul class="dropdown-menu">
-                      <li><a href="/#summary">Summary</a></li>
-                      <li><a href="/#data">Data Gathering</a></li>
-                      <li><a href="/#processing">Data Wrangling</a></li>
-                      <li><a href="/#models">Models</a></li>
-                      <li><a href="/#final">Final Product</a></li>
-                    </ul>
-                  </li>
-                    <li>
-                        <a href="/recommend">Recommender</a>
-                    </li>
-                    <li>
-                        <a href="/contact">Contact</a>
-                    </li>
-                </ul>
-            </div>
-            <!-- /.navbar-collapse -->
-        </div>
-        <!-- /.container -->
-    </nav>
-
-
-
-
-
-{% for card in cards %}
-      <div class="content-section-a">
-          <div class="container">
-              <div class="row">
-                  <div class="col-lg-5 col-sm-6">
-                      <hr class="section-heading-spacer">
-                      <div class="clearfix"></div>
-                      <h2 class="section-heading"><br>{{card['name']}}</h2>
-                      <h4>Ingredients:</h4>
-                      {% for i in card['ingredients'] %}
-                      <li>{{i}}</li>
-                      {% endfor %}
-                      <h4>Directions:</h4>
-                      {% for i in card['directions'] %}
-                      <li>{{i}}</li>
-                      {% endfor %}
-                  </div>
-                  <div class="col-lg-5 col-lg-offset-2 col-sm-6">
-                      <img class="img-responsive" src={% if card['picture'] %} {{card['picture'][0]}} {% endif %}>
-                  </div>
-              </div>
-
-          </div>
-          <!-- /.container -->
-
-      </div>
-{% endfor %}
-
-
-
-
-
-
-<!-- Footer -->
-<footer>
-    <div class="container">
-        <hr class="section-heading">
-        <div class="row">
-            <div class="col-lg-12">
-                <ul class="list-inline">
-                    <li>
-                        <a href="/about">About The Project</a>
-                    </li>
-                    <li class="footer-menu-divider">&sdot;</li>
-                    <li>
-                        <a href="/recommend">Login</a>
-                    </li>
-                    <li class="footer-menu-divider">&sdot;</li>
-                    <li>
-                        <a href="/contact">Contact</a>
-                    </li>
-                </ul>
-                <p class="copyright text-muted small">The Recipe Recommender. 2016</p>
-            </div>
-        </div>
+<!-- Projects Row -->
+<div class="row">
+    <div class="col-md-4 portfolio-item">
+        <a href="/recipe/{{cards[0]['recipe_id']}}">
+            <img class="img-responsive" src={{cards[0]['picture'][0]}} alt="">
+        </a>
+        <h3>
+            <a href="#">{{cards[0]['name']}}</a>
+        </h3>
+        <p>Average Rating: {{cards[0]['rating'][0]}} </p>
+        <p>Number of Reviews: {{cards[0]['num_reviews'][0]}}</p>
     </div>
-</footer>
+    <div class="col-md-4 portfolio-item">
+        <a href="/recipe/{{cards[1]['recipe_id']}}">
+            <img class="img-responsive" src={{cards[1]['picture'][0]}} alt="">
+        </a>
+        <h3>
+            <a href="#">{{cards[1]['name']}}</a>
+        </h3>
+        <p>Average Rating: {{cards[1]['rating'][0]}} </p>
+        <p>Number of Reviews: {{cards[1]['num_reviews'][0]}}</p>
+    </div>
+    <div class="col-md-4 portfolio-item">
+        <a href="/recipe/{{cards[2]['recipe_id']}}">
+            <img class="img-responsive" src={{cards[2]['picture'][0]}} alt="">
+        </a>
+        <h3>
+            <a href="#">{{cards[2]['name']}}</a>
+        </h3>
+        <p>Average Rating: {{cards[2]['rating'][0]}} </p>
+        <p>Number of Reviews: {{cards[2]['num_reviews'][0]}}</p>
+    </div>
+</div>
+<!-- /.row -->
 
-<!-- jQuery -->
-<script src="../static/js/jquery.js"></script>
+<hr>
 
-<!-- Bootstrap Core JavaScript -->
-<script src="../static/js/bootstrap.min.js"></script>
+<!-- Projects Row -->
+<div class="row">
+    <div class="col-md-4 portfolio-item">
+        <a href="/recipe/{{cards[3]['recipe_id']}}">
+            <img class="img-responsive" src={{cards[3]['picture'][0]}} alt="">
+        </a>
+        <h3>
+            <a href="#">{{cards[3]['name']}}</a>
+        </h3>
+        <p>Average Rating: {{cards[3]['rating'][0]}} </p>
+        <p>Number of Reviews: {{cards[3]['num_reviews'][0]}}</p>
+    </div>
+    <div class="col-md-4 portfolio-item">
+        <a href="/recipe/{{cards[4]['recipe_id']}}">
+            <img class="img-responsive" src={{cards[4]['picture'][0]}} alt="">
+        </a>
+        <h3>
+            <a href="#">{{cards[4]['name']}}</a>
+        </h3>
+        <p>Average Rating: {{cards[4]['rating'][0]}} </p>
+        <p>Number of Reviews: {{cards[4]['num_reviews'][0]}}</p>
+    </div>
+    <div class="col-md-4 portfolio-item">
+        <a href="/recipe/{{cards[5]['recipe_id']}}">
+            <img class="img-responsive" src={{cards[5]['picture'][0]}} alt="">
+        </a>
+        <h3>
+            <a href="#">{{cards[5]['name']}}</a>
+        </h3>
+        <p>Average Rating: {{cards[5]['rating'][0]}} </p>
+        <p>Number of Reviews: {{cards[5]['num_reviews'][0]}}</p>
+    </div>
+</div>
 
-</body>
+<hr>
+<!-- Projects Row -->
+<div class="row">
+    <div class="col-md-4 portfolio-item">
+        <a href="/recipe/{{cards[6]['recipe_id']}}">
+            <img class="img-responsive" src={{cards[6]['picture'][0]}} alt="">
+        </a>
+        <h3>
+            <a href="#">{{cards[6]['name']}}</a>
+        </h3>
+        <p>Average Rating: {{cards[6]['rating'][0]}} </p>
+        <p>Number of Reviews: {{cards[6]['num_reviews'][0]}}</p>
+    </div>
+    <div class="col-md-4 portfolio-item">
+        <a href="/recipe/{{cards[7]['recipe_id']}}">
+            <img class="img-responsive" src={{cards[7]['picture'][0]}} alt="">
+        </a>
+        <h3>
+            <a href="#">{{cards[7]['name']}}</a>
+        </h3>
+        <p>Average Rating: {{cards[7]['rating'][0]}} </p>
+        <p>Number of Reviews: {{cards[7]['num_reviews'][0]}}</p>
+    </div>
+    <div class="col-md-4 portfolio-item">
+        <a href="/recipe/{{cards[8]['recipe_id']}}">
+            <img class="img-responsive" src={{cards[8]['picture'][0]}} alt="">
+        </a>
+        <h3>
+            <a href="#">{{cards[8]['name']}}</a>
+        </h3>
+        <p>Average Rating: {{cards[8]['rating'][0]}} </p>
+        <p>Number of Reviews: {{cards[8]['num_reviews'][0]}}</p>
+    </div>
+</div>
+<!-- /.row -->
 
-</html>
+<hr>
+
+</div>
+{% endblock %}

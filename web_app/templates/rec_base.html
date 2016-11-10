@@ -60,62 +60,41 @@
         <!-- /.container -->
     </nav>
 
+{% block content %}
+{% endblock %}
 
-    <!-- Header -->
-    <a name="about"></a>
-    <div class="intro-header">
-        <div class="container">
 
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="intro-message">
-                        <h1 style="text-shadow:2px 2px 0px #000000">{{intro_header}}</h1>
-                        <h3>{{tag_line}}</h3>
-                        <hr class="intro-divider">
-                        {% block login %}
-                        {% endblock %}
-                    </div>
-                </div>
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <hr class="section-heading">
+        <div class="row">
+            <div class="col-lg-12">
+                <ul class="list-inline">
+                    <li>
+                        <a href="/about">About The Project</a>
+                    </li>
+                    <li class="footer-menu-divider">&sdot;</li>
+                    <li>
+                        <a href="/recommend">Login</a>
+                    </li>
+                    <li class="footer-menu-divider">&sdot;</li>
+                    <li>
+                        <a href="/contact">Contact</a>
+                    </li>
+                </ul>
+                <p class="copyright text-muted small">The Recipe Recommender. 2016</p>
             </div>
-
         </div>
-        <!-- /.container -->
     </div>
-    <!-- /.intro-header -->
+</footer>
 
-    {% block content %}
-    {% endblock %}
+<!-- jQuery -->
+<script src="../static/js/jquery.js"></script>
 
-    <!-- Footer -->
-    <footer>
-        <div class="container">
-            <hr class="section-heading">
-            <div class="row">
-                <div class="col-lg-12">
-                    <ul class="list-inline">
-                        <li>
-                            <a href="/about">About The Project</a>
-                        </li>
-                        <li class="footer-menu-divider">&sdot;</li>
-                        <li>
-                            <a href="/recommend">Login</a>
-                        </li>
-                        <li class="footer-menu-divider">&sdot;</li>
-                        <li>
-                            <a href="/contact">Contact</a>
-                        </li>
-                    </ul>
-                    <p class="copyright text-muted small">The Recipe Recommender. 2016</p>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <!-- jQuery -->
-    <script src="../static/js/jquery.js"></script>
-
-    <!-- Bootstrap Core JavaScript -->
-    <script src="../static/js/bootstrap.min.js"></script>
+<!-- Bootstrap Core JavaScript -->
+<script src="../static/js/bootstrap.min.js"></script>
 
 </body>
 

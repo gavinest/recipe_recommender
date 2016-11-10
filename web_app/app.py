@@ -44,9 +44,14 @@ def register():
         username = request.form['name']
     return render_template('register.html')
 
+@app.route('/recipe/<recipe_id>')
+def find_recipe(recipe_id):
+    recipe_card = RECIPE_COLLECTION.find_one({'recipe_id': str(recipe_id)})
+    return render_template('recipe_card.html', card=recipe_card)
+
 @app.route('/recommender/<user_id>')
 def recommender(user_id):
-    recommendations = model.recommend([user_id], k=5)['recipe_id']
+    recommendations = model.recommend([user_id], k=10)['recipe_id']
     recipe_cards =[]
     for recipe in recommendations:
         recipe_cards.append(RECIPE_COLLECTION.find_one({'recipe_id': str(recipe)}))
@@ -79,4 +84,4 @@ if __name__ == '__main__':
     df = pd.read_pickle('../data_management/pkls/data.pkl')
     model = gl.load_model('../models/model')
 
-    app.run(host='0.0.0.0', port=8080, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)

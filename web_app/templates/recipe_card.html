@@ -1,0 +1,27 @@
+{% extends 'rec_base.html' %}
+
+{% block content %}
+<div class="content-section-a">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-5 col-sm-6">
+                <hr class="section-heading-spacer">
+                <div class="clearfix"></div>
+                <h2 class="section-heading"><br>{{card['name']}}</h2>
+                <h4>Ingredients:</h4>
+                {% for i in card['ingredients'] %}
+                <li>{{i}}</li>
+                {% endfor %}
+                <h4>Directions:</h4>
+                {% for i in card['directions'] %}
+                <li>{{i}}</li>
+                {% endfor %}
+            </div>
+            <div class="col-lg-5 col-lg-offset-2 col-sm-6">
+                <img class="img-responsive" src={% if card['picture'] %} {{card['picture'][0]}} {% endif %}>
+            </div>
+        </div>
+
+    </div>
+    <!-- /.container -->
+{% endblock %}
