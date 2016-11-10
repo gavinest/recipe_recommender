@@ -5,8 +5,10 @@
 *.pkl
 *.ipynb
 *.jpg
+*.zip
 
 #ignore directories
 eda/
 research/
 models/model/
+web_app_backup/

@@ -1,26 +1,21 @@
 {% extends 'layout.html' %}
 
 {% block login %}
-{% endblock %}
 
-{% block content %}
-<div class="container">
-
-    <hr class="featurette-divider">
-    <div class="featurette" id="about">
-        <img class="featurette-image img-circle img-responsive pull-right" src="http://placehold.it/500x500">
-        <p class="lead">
-          <h2> </h2>
-          <p>
-            <h3>Gavin Estenssoro</h3>
-            <li>Location: Denver, CO</li>
-            <li>Email: gav.estenssoro@gmail.com</li>
-            <li>Phone: 303.704.0533</li>
-            <li><a href='https://www.linkedin.com/in/gavinest'>LinkedIn</a></li>
-            <li><a href='https://github.com/gavinest'>Github</a></li>
-          </p>
-        </p>
-    </div>
-</div>
+<!-- Header -->
+<!-- <hr class="intro-divider"> -->
+<h4>gav.estenssoro@gmail.com</h4>
+<h4>Denver, CO</h4>
+<ul class="list-inline intro-social-buttons">
+    <li>
+        <a href="https://github.com/gavinest" class="btn btn-default btn-lg"><i class="fa fa-github fa-fw"></i> <span class="network-name">Github</span></a>
+    </li>
+    <li>
+        <a href="https://www.linkedin.com/in/gavinest" class="btn btn-default btn-lg"><i class="fa fa-linkedin fa-fw"></i> <span class="network-name">Linkedin</span></a>
+    </li>
+</ul>
 
 {% endblock%}
+
+{% block content %}
+{% endblock %}

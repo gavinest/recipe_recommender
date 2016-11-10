@@ -1,34 +1,133 @@
-{% extends 'layout.html' %}
+<!DOCTYPE html>
+<html lang="en">
 
-{% block login %}
-{% endblock %}
+<head>
 
-{% block content %}
-<h3 class="featurette-heading">Recommended Recipes:
-    <span class="text-muted"></span>
-</h3>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Recipe Recommender</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="../static/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="../static/css/landing-page.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="../static/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-fixed-top topnav" role="navigation">
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-left">
+                  <li class="dropdown">
+                    <a href="/#" class="dropdown-toggle" data-toggle="dropdown">About the Project</a>
+                    <ul class="dropdown-menu">
+                      <li><a href="/#summary">Summary</a></li>
+                      <li><a href="/#data">Data Gathering</a></li>
+                      <li><a href="/#processing">Data Wrangling</a></li>
+                      <li><a href="/#models">Models</a></li>
+                      <li><a href="/#final">Final Product</a></li>
+                    </ul>
+                  </li>
+                    <li>
+                        <a href="/recommend">Recommender</a>
+                    </li>
+                    <li>
+                        <a href="/contact">Contact</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+
+
+
+
 {% for card in cards %}
-<div class="container">
-    <hr class="featurette-divider">
-    <h3 class="featurette-heading">{{card['name']}}
-        <span class="text-muted"></span>
-    </h3>
-    <div class="featurette">
-        <img class="featurette-image img-circle img-responsive pull-right" src = {% if card['picture'] %} {{card['picture'][0]}} {% endif %}>
-        <p class="lead">
-          <h3>{{recipe_name}}</h3>
-          <h4>Ingredients:</h4>
-          {% for i in card['ingredients'] %}
-          <li>{{i}}</li>
-          {% endfor %}
-          <h4>Directions:</h4>
-          {% for i in card['directions'] %}
-          <li>{{i}}</li>
-          {% endfor %}
-        </p>
-    </div>
-</div>
-{% endfor %}
-<!-- /.container -->
+      <div class="content-section-a">
+          <div class="container">
+              <div class="row">
+                  <div class="col-lg-5 col-sm-6">
+                      <hr class="section-heading-spacer">
+                      <div class="clearfix"></div>
+                      <h2 class="section-heading"><br>{{card['name']}}</h2>
+                      <h4>Ingredients:</h4>
+                      {% for i in card['ingredients'] %}
+                      <li>{{i}}</li>
+                      {% endfor %}
+                      <h4>Directions:</h4>
+                      {% for i in card['directions'] %}
+                      <li>{{i}}</li>
+                      {% endfor %}
+                  </div>
+                  <div class="col-lg-5 col-lg-offset-2 col-sm-6">
+                      <img class="img-responsive" src={% if card['picture'] %} {{card['picture'][0]}} {% endif %}>
+                  </div>
+              </div>
 
-{% endblock %}
+          </div>
+          <!-- /.container -->
+
+      </div>
+{% endfor %}
+
+
+
+
+
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <hr class="section-heading">
+        <div class="row">
+            <div class="col-lg-12">
+                <ul class="list-inline">
+                    <li>
+                        <a href="/about">About The Project</a>
+                    </li>
+                    <li class="footer-menu-divider">&sdot;</li>
+                    <li>
+                        <a href="/recommend">Login</a>
+                    </li>
+                    <li class="footer-menu-divider">&sdot;</li>
+                    <li>
+                        <a href="/contact">Contact</a>
+                    </li>
+                </ul>
+                <p class="copyright text-muted small">The Recipe Recommender. 2016</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="../static/js/jquery.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="../static/js/bootstrap.min.js"></script>
+
+</body>
+
+</html>

@@ -2,6 +2,7 @@ from flask import Flask, request, render_template, url_for, redirect
 import numpy as np
 import pandas as pd
 import graphlab as gl
+from unidecode import unidecode
 from pymongo import MongoClient
 import sys
 sys.path.append('/Users/Gavin/ds/recipe_recommender')
@@ -31,11 +32,17 @@ USER_COLLECTION = DATABASE['users']
 @app.route('/')
 @app.route('/about')
 def hello_world():
-    return render_template('summary.html')
+    return render_template('summary.html', intro_header='Recipe Recommender', tag_line='Make Good Food. Save Money.')
 
 @app.route('/contact')
 def contact_me():
-    return render_template('contact.html')
+    return render_template('contact.html', intro_header='Gavin Estenssoro', tag_line='Data Scientist | Engineer')
+
+@app.route('/register', methods=["GET", "POST"])
+def register():
+    if request.method == 'POST':
+        username = request.form['name']
+    return render_template('register.html')
 
 @app.route('/recommender/<user_id>')
 def recommender(user_id):
@@ -46,24 +53,30 @@ def recommender(user_id):
     return render_template('recommender.html', cards=recipe_cards)
 
 @app.route('/login', methods=["GET", "POST"])
-@app.route('/recommend')
-@app.route('/recommender')
+@app.route('/recommend', methods=["GET", "POST"])
+@app.route('/recommender', methods=["GET", "POST"])
 #827351
 def login():
-    error = ''
+    error = None
     if request.method == "POST":
         user_id = request.form['user_id']
         if USER_COLLECTION.find({'user_id': user_id}).count() != 0:
             return redirect(url_for('recommender', user_id=user_id))
         else:
-            error = 'Invalid User ID. Do you want to register?'
-    return render_template('login.html', error=error)
+            error = True
+    return render_template('login.html', intro_header='The Recommender',  tag_line='Delicious Food is Just a Click Away', error=error, random_users=get_random_ids())
+
+def get_random_ids():
+    s = list(set(df['user_id'].values))
+    users = np.random.choice(np.array(s), size=5, replace=False)
+    return [int(unidecode(user)) for user in users]
 
 if __name__ == '__main__':
     # data = DataLoader(10)
     # data.to_dataframe()
     # print data.user_idx
     # df = data.df
+    df = pd.read_pickle('../data_management/pkls/data.pkl')
     model = gl.load_model('../models/model')
 
     app.run(host='0.0.0.0', port=8080, debug=True)

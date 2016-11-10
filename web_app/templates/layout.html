@@ -15,7 +15,11 @@
     <link href="../static/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom CSS -->
-    <link href="../static/css/one-page-wonder.css" rel="stylesheet">
+    <link href="../static/css/landing-page.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="../static/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -29,23 +33,12 @@
 <body>
 
     <!-- Navigation -->
-    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-        <div class="container">
-            <!-- Brand and toggle get grouped for better mobile display -->
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <!-- <a class="navbar-brand" href="#">Start Bootstrap</a> -->
-            </div>
+    <nav class="navbar navbar-default navbar-fixed-top topnav" role="navigation">
             <!-- Collect the nav links, forms, and other content for toggling -->
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                <ul class="nav navbar-nav">
+                <ul class="nav navbar-nav navbar-left">
                   <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">About the Project</a>
+                    <a href="/#" class="dropdown-toggle" data-toggle="dropdown">About the Project</a>
                     <ul class="dropdown-menu">
                       <li><a href="/#summary">Summary</a></li>
                       <li><a href="/#data">Data Gathering</a></li>
@@ -54,11 +47,8 @@
                       <li><a href="/#final">Final Product</a></li>
                     </ul>
                   </li>
-                    <!-- <li>
-                        <a href="/">About the Project</a>
-                    </li> -->
                     <li>
-                        <a href="/login">Recipe Recommender</a>
+                        <a href="/recommend">Recommender</a>
                     </li>
                     <li>
                         <a href="/contact">Contact</a>
@@ -70,34 +60,68 @@
         <!-- /.container -->
     </nav>
 
-    <!-- Full Width Image Header -->
-    <header class="header-image">
-        <div class="headline">
-            <div class="container">
-                <h2>Recipe Recommender</h2>
-                <h3>Make Good Food. Save Money.</h3>
+
+    <!-- Header -->
+    <a name="about"></a>
+    <div class="intro-header">
+        <div class="container">
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="intro-message">
+                        <h1>{{intro_header}}</h1>
+                        <h3>{{tag_line}}</h3>
+                        <hr class="intro-divider">
+                        <!-- <ul class="list-inline intro-social-buttons">
+                            <li>
+                                <a href="https://twitter.com/SBootstrap" class="btn btn-default btn-lg"><i class="fa fa-twitter fa-fw"></i> <span class="network-name">Twitter</span></a>
+                            </li>
+                            <li>
+                                <a href="https://github.com/IronSummitMedia/startbootstrap" class="btn btn-default btn-lg"><i class="fa fa-github fa-fw"></i> <span class="network-name">Github</span></a>
+                            </li>
+                            <li>
+                                <a href="#" class="btn btn-default btn-lg"><i class="fa fa-linkedin fa-fw"></i> <span class="network-name">Linkedin</span></a>
+                            </li>
+                        </ul> -->
+                        {% block login %}
+                        {% endblock %}
+                    </div>
+                </div>
             </div>
-            {% block login %}
-            {% endblock %}
+
         </div>
-    </header>
+        <!-- /.container -->
+    </div>
+    <!-- /.intro-header -->
 
     {% block content %}
     {% endblock %}
 
-<div class="container">
-    <hr class="featurette-divider">
     <!-- Footer -->
     <footer>
-        <div class="row">
-            <div class="col-lg-12">
-                <p>Copyright &copy; Your Website 2014</p>
+        <div class="container">
+            <hr class="section-heading">
+            <div class="row">
+                <div class="col-lg-12">
+                    <ul class="list-inline">
+                        <li>
+                            <a href="/about">About The Project</a>
+                        </li>
+                        <li class="footer-menu-divider">&sdot;</li>
+                        <li>
+                            <a href="/recommend">Login</a>
+                        </li>
+                        <li class="footer-menu-divider">&sdot;</li>
+                        <li>
+                            <a href="/contact">Contact</a>
+                        </li>
+                    </ul>
+                    <p class="copyright text-muted small">The Recipe Recommender. 2016</p>
+                </div>
             </div>
         </div>
-
-    <hr class="featurette-divider">
     </footer>
-</div>
+
     <!-- jQuery -->
     <script src="../static/js/jquery.js"></script>
 
