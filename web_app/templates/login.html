@@ -2,29 +2,51 @@
 
 {% block login %}
 <div class="container">
-  <br>
-  <h4>Login:</h4>
-  <br>
+  <h2 class="section-heading">Login:</h2>
   <form action="" class="form-inline" method="post">
     <input type="text" class="form-control" placeholder="UserID" name="user_id" value="{{request.form.user_id}}">
     <input class="btn btn-default" type="submit" value="Recommend">
   </form>
 </div>
 
-<h2><font color='red'>{%if error %} Invalid UserID. <a href='/register'>Register Here</a>{% endif %}</font></h2>
-
-<hr class="intro-divider">
-
-<h3> New User? </h3>
-<h3>Consider <a href='/register'>registering</a> for personalized recommendations.</h3>
-<h4> Meanwhile, see how it works.</h4>
-<p>(Enter one of the UserIDs below)</p>
-  <p>
-    {% for user in random_users %}
-    <ul>{{user}}</ul>
-    {% endfor %}
-  </p>
-
+<h2><font color='red'>{%if error %} Invalid UserID. <a href='#register'>Register Here</a>{% endif %}</font></h2>
 {% endblock %}
+
+
 {% block content %}
+  <div class="content-section-a">
+
+      <div class="container">
+          <div class="row">
+              <div class="col-lg-5 col-sm-6">
+                  <div class="clearfix"></div>
+                  <h2 class="section-heading">New User?</h2>
+                  <p class="lead">Consider <a href='#register'>registering</a> for personalized recommendations.</p>
+                  <h4> Meanwhile, see how it works.</h4>
+                  <p>(Enter one of the UserIDs to the login above)</p>
+                    <p>
+                      {% for user in random_users %}
+                      <ul>{{user}}</ul>
+                      {% endfor %}
+                    </p>
+              </div>
+              <a name="register"></a>
+              <div class="col-lg-5 col-lg-offset-2 col-sm-6">
+                  <div class="container">
+                    <br>
+                    <h2 class="section-heading">Register Here:</h2>
+                    <br>
+                    <form action="" class="form-inline" method="post">
+                      <input type="text" class="form-control" placeholder="E-Mail (we don't spam)" name="register" value="{{request.form.register}}">
+                      <input class="btn btn-default" type="submit" value="Register">
+                    </form>
+                  </div>
+              </div>
+          </div>
+
+      </div>
+      <!-- /.container -->
+
+  </div>
+  <!-- /.content-section-a -->
 {% endblock %}

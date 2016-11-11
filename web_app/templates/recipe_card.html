@@ -8,16 +8,21 @@
                 <hr class="section-heading-spacer">
                 <div class="clearfix"></div>
                 <h2 class="section-heading"><br>{{card['name']}}</h2>
+                <h6> Prep: &nbsp;&nbsp;&nbsp;&nbsp; Cook: &nbsp;&nbsp;&nbsp;&nbsp; Total:</h6>
+                <h6>{% for i in card['time'] %} {{i}}&nbsp;&nbsp;&nbsp;&nbsp; {% endfor %}</h6>
+                <br>
                 <h4>Ingredients:</h4>
                 {% for i in card['ingredients'] %}
                 <li>{{i}}</li>
                 {% endfor %}
+                <br>
                 <h4>Directions:</h4>
-                {% for i in card['directions'] %}
+                {% for i in card['directions'][:-1] %}
                 <li>{{i}}</li>
                 {% endfor %}
             </div>
             <div class="col-lg-5 col-lg-offset-2 col-sm-6">
+                <h2 class="section-heading"><br></h2>
                 <img class="img-responsive" src={% if card['picture'] %} {{card['picture'][0]}} {% endif %}>
             </div>
         </div>
