@@ -24,30 +24,31 @@
             <img class="img-responsive" src={{cards[0]['picture'][0]}} alt="">
         </a>
         <h3>
-            <a href="#">{{cards[0]['name']}}</a>
+            <a href="/recipe/{{cards[0]['recipe_id']}}">{{cards[0]['name']}}</a>
         </h3>
-        <p>Average Rating: {{cards[0]['rating'][0]}} </p>
-        <p>Number of Reviews: {{cards[0]['num_reviews'][0]}}</p>
+        <p>Average Rating: {{avg_ratings[0]}} <br> Total Reviews: {{cards[0]['num_reviews'][0]}}</p>
+        <p>Potential Savings: </p>
+        <!-- <p>Number of Reviews: {{cards[0]['num_reviews'][0]}}</p> -->
     </div>
     <div class="col-md-4 portfolio-item">
         <a href="/recipe/{{cards[1]['recipe_id']}}">
             <img class="img-responsive" src={{cards[1]['picture'][0]}} alt="">
         </a>
         <h3>
-            <a href="#">{{cards[1]['name']}}</a>
+            <a href="/recipe/{{cards[1]['recipe_id']}}">{{cards[1]['name']}}</a>
         </h3>
-        <p>Average Rating: {{cards[1]['rating'][0]}} </p>
-        <p>Number of Reviews: {{cards[1]['num_reviews'][0]}}</p>
+        <p>Average Rating: {{avg_ratings[1]}} <br> Total Reviews: {{cards[1]['num_reviews'][0]}}</p>
+        <p>Potential Savings: </p>
     </div>
     <div class="col-md-4 portfolio-item">
         <a href="/recipe/{{cards[2]['recipe_id']}}">
             <img class="img-responsive" src={{cards[2]['picture'][0]}} alt="">
         </a>
         <h3>
-            <a href="#">{{cards[2]['name']}}</a>
+            <a href="/recipe/{{cards[2]['recipe_id']}}">{{cards[2]['name']}}</a>
         </h3>
-        <p>Average Rating: {{cards[2]['rating'][0]}} </p>
-        <p>Number of Reviews: {{cards[2]['num_reviews'][0]}}</p>
+        <p>Average Rating: {{avg_ratings[2]}} <br> Total Reviews: {{cards[2]['num_reviews'][0]}}</p>
+        <p>Potential Savings: </p>
     </div>
 </div>
 <!-- /.row -->
@@ -61,30 +62,30 @@
             <img class="img-responsive" src={{cards[3]['picture'][0]}} alt="">
         </a>
         <h3>
-            <a href="#">{{cards[3]['name']}}</a>
+            <a href="/recipe/{{cards[3]['recipe_id']}}">{{cards[3]['name']}}</a>
         </h3>
-        <p>Average Rating: {{cards[3]['rating'][0]}} </p>
-        <p>Number of Reviews: {{cards[3]['num_reviews'][0]}}</p>
+        <p>Average Rating: {{avg_ratings[3]}} <br> Total Reviews: {{cards[3]['num_reviews'][0]}}</p>
+        <p>Potential Savings: </p>
     </div>
     <div class="col-md-4 portfolio-item">
         <a href="/recipe/{{cards[4]['recipe_id']}}">
             <img class="img-responsive" src={{cards[4]['picture'][0]}} alt="">
         </a>
         <h3>
-            <a href="#">{{cards[4]['name']}}</a>
+            <a href="/recipe/{{cards[4]['recipe_id']}}">{{cards[4]['name']}}</a>
         </h3>
-        <p>Average Rating: {{cards[4]['rating'][0]}} </p>
-        <p>Number of Reviews: {{cards[4]['num_reviews'][0]}}</p>
+        <p>Average Rating: {{avg_ratings[4]}} <br> Total Reviews: {{cards[4]['num_reviews'][0]}}</p>
+        <p>Potential Savings: </p>
     </div>
     <div class="col-md-4 portfolio-item">
         <a href="/recipe/{{cards[5]['recipe_id']}}">
             <img class="img-responsive" src={{cards[5]['picture'][0]}} alt="">
         </a>
         <h3>
-            <a href="#">{{cards[5]['name']}}</a>
+            <a href="/recipe/{{cards[5]['recipe_id']}}">{{cards[5]['name']}}</a>
         </h3>
-        <p>Average Rating: {{cards[5]['rating'][0]}} </p>
-        <p>Number of Reviews: {{cards[5]['num_reviews'][0]}}</p>
+        <p>Average Rating: {{avg_ratings[5]}} <br> Total Reviews: {{cards[5]['num_reviews'][0]}}</p>
+        <p>Potential Savings: </p>
     </div>
 </div>
 
@@ -96,30 +97,56 @@
             <img class="img-responsive" src={{cards[6]['picture'][0]}} alt="">
         </a>
         <h3>
-            <a href="#">{{cards[6]['name']}}</a>
+            <a href="/recipe/{{cards[6]['recipe_id']}}">{{cards[6]['name']}}</a>
         </h3>
-        <p>Average Rating: {{cards[6]['rating'][0]}} </p>
-        <p>Number of Reviews: {{cards[6]['num_reviews'][0]}}</p>
+        <p>Average Rating: {{avg_ratings[6]}} <br> Total Reviews: {{cards[6]['num_reviews'][0]}}</p>
+        <p>Potential Savings: </p>
     </div>
     <div class="col-md-4 portfolio-item">
         <a href="/recipe/{{cards[7]['recipe_id']}}">
             <img class="img-responsive" src={{cards[7]['picture'][0]}} alt="">
         </a>
         <h3>
-            <a href="#">{{cards[7]['name']}}</a>
+            <a href="/recipe/{{cards[7]['recipe_id']}}">{{cards[7]['name']}}</a>
         </h3>
-        <p>Average Rating: {{cards[7]['rating'][0]}} </p>
-        <p>Number of Reviews: {{cards[7]['num_reviews'][0]}}</p>
+        <p>Average Rating: {{avg_ratings[7]}} <br> Total Reviews: {{cards[7]['num_reviews'][0]}}</p>
+        <p>Potential Savings: </p>
     </div>
     <div class="col-md-4 portfolio-item">
         <a href="/recipe/{{cards[8]['recipe_id']}}">
             <img class="img-responsive" src={{cards[8]['picture'][0]}} alt="">
         </a>
         <h3>
-            <a href="#">{{cards[8]['name']}}</a>
+            <a href="/recipe/{{cards[8]['recipe_id']}}">{{cards[8]['name']}}</a>
         </h3>
-        <p>Average Rating: {{cards[8]['rating'][0]}} </p>
-        <p>Number of Reviews: {{cards[8]['num_reviews'][0]}}</p>
+        <p>Average Rating: {{avg_ratings[8]}} <br> Total Reviews: {{cards[8]['num_reviews'][0]}}</p>
+        <p>Potential Savings: </p>
+    </div>
+</div>
+<!-- /.row -->
+
+<hr>
+
+<!-- Pagination -->
+<div class="row text-center">
+    <div class="col-lg-12">
+        <ul class="pagination">
+            <li>
+                <a href="/recommender/{{user_id}}/1">1</a>
+            </li>
+            <li>
+                <a href="/recommender/{{user_id}}/2">2</a>
+            </li>
+            <li>
+                <a href="/recommender/{{user_id}}/3">3</a>
+            </li>
+            <li>
+                <a href="/recommender/{{user_id}}/4">4</a>
+            </li>
+            <li>
+                <a href="/recommender/{{user_id}}/5">5</a>
+            </li>
+        </ul>
     </div>
 </div>
 <!-- /.row -->

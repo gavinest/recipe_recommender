@@ -9,7 +9,7 @@
   </form>
 </div>
 
-<h2><font color='red'>{%if error %} Invalid UserID. <a href='#register'>Register Here</a>{% endif %}</font></h2>
+<h2><font color='red'>{%if error1 %} Invalid UserID. <a href='#register'>Register Here</a>{% endif %}</font></h2>
 {% endblock %}
 
 
@@ -41,6 +41,7 @@
                       <input class="btn btn-default" type="submit" value="Register">
                     </form>
                   </div>
+                  <h2><font color='red'>{%if error2 %} {{error2}}{% endif %}</font></h2>
               </div>
           </div>
 

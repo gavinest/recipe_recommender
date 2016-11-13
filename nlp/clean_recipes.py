@@ -74,14 +74,14 @@ class NLPProcessor(object):
                 text.append(word)
             return text
 
-    def recipe_text_to_df(self, ids, filename, from_pickle=True):
+    def recipe_text_to_df(self, ids, filename=None, from_pickle=False):
         if from_pickle:
             path = '/Users/Gavin/ds/recipe_recommender/nlp/'
             with open(path + filename) as f_un:
                 vect = pickle.load(f_un)
         else:
-                self.fit_vectorizor()
-                vect = self.vectorizer
+            self.fit_vectorizor()
+            vect = self.vectorizer
 
         document_text_matrices= []
         for recipe_id in ids:
@@ -89,7 +89,7 @@ class NLPProcessor(object):
             document_text_matrices.append(mat.toarray())
         df = pd.DataFrame(document_text_matrices)
         return df
-        
+
     def test(self, num_recipes=1):
         recipe_ids = []
         for recipe in RECIPE_COLLECTION.find().limit(num_recipes):
@@ -112,7 +112,6 @@ class NLPProcessor(object):
 if __name__ == '__main__':
     # t = clean_ingredients(test_list)
     # update_recipes()
-    t = NLPProcessor()
     # text, documetns, recipe_ids = t.test(num_recipes=10)
     test_ids = [u'212940',
                  u'230469',
@@ -127,4 +126,16 @@ if __name__ == '__main__':
     # t.make_tfidf(test_ids)
     # t.vectorizer.vocabulary_
     # t.fit_vectorizor()
-    test = t.recipe_text_to_df(test_ids, filename='nlp_vectorizer.pkl')
+    t = NLPProcessor()
+    test = t.recipe_text_to_df(test_ids)
+
+
+    '''
+    send vectorizer vocab to ordered dict
+
+    loop through ordered dict and if word from individual recipe is in ordered dict then append 1 otherwise append 0 to a deque
+
+    add to entry in mongo for speed of referencing
+
+    when pull into sframe when called 
+    '''

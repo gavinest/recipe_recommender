@@ -17,16 +17,6 @@ DATABASE = CLIENT[DB_NAME]
 RECIPE_COLLECTION = DATABASE['recipes']
 USER_COLLECTION = DATABASE['users']
 
-# class RegistrationForm(Form):
-    # username = TextField('Username', [validators.Length(min=4, max=20)])
-    # email = TextField('Email Address', [validators.Length(min=6, max=50)])
-    # password = PasswordField('New Password', [
-    #     validators.Required(),
-    #     validators.EqualTo('confirm', message='Passwords must match')
-    # ])
-    # confirm = PasswordField('Repeat Password')
-    # accept_tos = BooleanField('I accept the Terms of Service and Privacy Notice (updated Jan 22, 2015)', [validators.Required()])
-
 
 @app.route('/login', methods=["GET", "POST"])
 @app.route('/recommend', methods=["GET", "POST"])
@@ -34,19 +24,22 @@ USER_COLLECTION = DATABASE['users']
 @app.route('/', methods=["GET", "POST"])
 #827351
 def login():
-    error = None
+    error1 = error2 = None
     if request.method == "POST":
-
         if 'user_id' in request.form:
             user = request.form['user_id']
             if USER_COLLECTION.find({'user_id': user}).count() != 0:
                 return redirect(url_for('recommender', user_id=user))
             else:
-                error = True
+                error1 = True
         elif 'register' in request.form:
             new_user = request.form['register']
-            print 'weeeeeeee'
-    return render_template('login.html', intro_header='The Recipe Recommender',  tag_line='Delicious Food is Just a Click Away', error=error, random_users=get_random_ids())
+            if USER_COLLECTION.find({'user_id': new_user}).count()!= 0:
+                error2 = 'Invalid username. User {} already exists.'.format(new_user)
+            else:
+                USER_COLLECTION.insert_one({'user_id': new_user})
+                error2 = 'Success. Welcome User {}.'.format(new_user)
+    return render_template('login.html', intro_header='The Recipe Recommender',  tag_line='Delicious Food is Just a Click Away', error1=error1, error2=error2, random_users=get_random_ids())
 
 
 # @app.route('/about')
@@ -69,12 +62,26 @@ def find_recipe(recipe_id):
     return render_template('recipe_card.html', card=recipe_card)
 
 @app.route('/recommender/<user_id>')
-def recommender(user_id):
-    recommendations = model.recommend([user_id], k=10)['recipe_id']
+def recommender(user_id, page=1):
+    #make page specific dict
+    page_dct = {
+                1: [0,9],
+                2: [9,18],
+                3: [18,27],
+                4: [27,36],
+                5: [36,45]
+                }
+    idx = page_dct[int(page)]
+
+    recommendations = model.recommend([user_id], k=45)['recipe_id']
     recipe_cards =[]
     for recipe in recommendations:
         recipe_cards.append(RECIPE_COLLECTION.find_one({'recipe_id': str(recipe)}))
-    return render_template('recommender.html', cards=recipe_cards)
+    return render_template('recommender.html', user_id=int(user_id), cards=recipe_cards[idx[0]:idx[1]], avg_ratings=[round(float(card['rating'][0]),2) for card in recipe_cards][idx[0]:idx[1]])
+
+@app.route('/recommender/<user_id>/<page>')
+def new_page(user_id, page=1):
+    return redirect(url_for('recommender', user_id=user_id, page=page))
 
 def get_random_ids():
     s = list(set(df['user_id'].values))

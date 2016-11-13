@@ -9,7 +9,7 @@ class RecScorer(object):
     Scores on precision, recall, and F1 Score.
     '''
 
-    def __init__(self, recommender, sf, test_set):
+    def __init__(self, sf, test_set,recommender, name=None, color=None, axes=None):
         '''
         Input: trained graphlab recommender object
                 Graphlab SFrame of Test Data
@@ -18,7 +18,9 @@ class RecScorer(object):
         self.n_users = recommender.num_users
         self.all_data = sf
         self.sf = test_set
-        self.fig, self.axes = plt.subplots(1,2, figsize=(14,6))
+        self.axes= axes
+        self.color = color
+        self.name = name
 
     def score_precision_recall(self, plot=True):
         '''
@@ -60,8 +62,9 @@ class RecScorer(object):
         # sorted_df['bool'] = sorted_df['rating'] >= sorted_df['rating_mean']
         sorted_df['bool'] = sorted_df['bool'].map({True: 1, False: 0})
 
-        predictions = self.recommender.predict(self.sf)
-        predictions = self.sf.add_column(predictions, 'rating_pred').to_dataframe()
+        sf = self.sf.copy()
+        predictions = self.recommender.predict(sf)
+        predictions = sf.add_column(predictions, 'rating_pred').to_dataframe()
         predictions.drop(['rating'], axis=1, inplace=True)
 
         sorted_df.astype('float64')
@@ -84,14 +87,15 @@ class RecScorer(object):
         return df['rmse'].mean()
 
     def plot_rmse(self):
-        self.axes[1].axhline(self._my_rmse(), color='b', label='My RMSE')
-        self.axes[1].axhline(self.recommender['training_rmse'], color='g', label='Train RMSE')
-        test_rmse = gl.evaluation.rmse(targets=self.sf['rating'], predictions=self.recommender.predict(self.sf))
-        print test_rmse
-        self.axes[1].axhline(test_rmse, color='r', label='Test RMSE')
+        # self.axes[1].axhline(self._my_rmse(), color='b', label='My RMSE')
+        # self.axes[1].axhline(self.recommender['training_rmse'], color='r', linestyle='--', label='Train RMSE')
+        self.test_rmse = gl.evaluation.rmse(targets=self.sf['rating'], predictions=self.recommender.predict(self.sf))
+        # print test_rmse
+        # self.axes[1].axhline(test_rmse, color=self.color, linestyle='-', label=self.name)
         self.axes[1].set_ylabel('RMSE')
         self.axes[1].legend(loc='best')
         # self.axes[1].set_ylim(0, 0.02)
+        self.axes[1].set_title('Recommender Test RMSE')
 
     def plot_precision_recall(self):
         '''
@@ -99,18 +103,13 @@ class RecScorer(object):
         plots recall on y-axis
 
         '''
-        # nums, precision, recall = zip(*npr)
-        # c = plt.get_cmap('viridis')
-        # colors = [c(0.15*float(i)/len(self.slices)) for i in self.slices]
-        self.axes[0].scatter(self.precision, self.recall, color='r', s=50, alpha=1.0)
+        self.axes[0].scatter(self.precision, self.recall, color=self.color, s=50, alpha=1.0, label=self.name)
 
         self.axes[0].set_xlabel('Precision')
         self.axes[0].set_ylabel('Recall')
         self.axes[0].set_title('Precision - Recall Plot')
         self.axes[0].legend(loc='best')
         self.axes[0].set_xlim(0.0, 1.0), self.axes[0].set_ylim(0.0, 1.05)
-
-        self.axes[0] = self._make_f1_lines()
 
     def _make_f1_lines(self):
         precision_values = np.linspace(0.0, 1.0, num=500)[1:]
@@ -123,13 +122,36 @@ class RecScorer(object):
                     points.append((p, recall))
             recall_pts, precision_pts = zip(*points)
             self.axes[0].plot(recall_pts, precision_pts , "--", color="gray", linewidth=0.5)
-            self.axes[0].annotate(r"$f1=%.1f$" % f, xy=(recall_pts[-10], precision_pts[-10]), xytext=(recall_pts[-10]-0.06, precision_pts[-10]-0.02), size="small", color="gray")
+            self.axes[0].annotate(r"$f1=%.1f$" % f, xy=(recall_pts[-10], precision_pts[-10]), xytext=(recall_pts[-10]-0.08, precision_pts[-10]-0.03), size="small", color="gray")
 
     def _calc_recall(self, f, p):
         return f * p / (2 * p - f)
 
+class ScoreMany(RecScorer):
+    def __init__(self, sf, test_set, recommenders, recommender_names, colors):
+        self.recommenders = recommenders
+        self.recommender_names = recommender_names
+        self.colors = colors
+        self.all_data = sf
+        self.sf = test_set
+        self.fig, self.axes = plt.subplots(1,2, figsize=(14,6))
 
-# class ScoreMany():
+    def plot_score_all(self):
+        scorer_objs = []
+        for i, recommender in enumerate(self.recommenders):
+            R = RecScorer(
+                sf=self.all_data,
+                test_set=self.sf,
+                recommender=recommender,
+                name=self.recommender_names[i],
+                color=self.colors[i],
+                axes=self.axes)
+            R.score_precision_recall()
+            scorer_objs.append(R)
+            self.axes = R.axes
+        scorer_objs[0].axes[1].plot(range(1,5
+        ), [obj.test_rmse for obj in scorer_objs], color='r')
+        scorer_objs[0]._make_f1_lines()
 
 if __name__ == '__main__':
     'load data train test model'
@@ -143,54 +165,15 @@ if __name__ == '__main__':
     'create or load models'
     # model = gl.factorization_recommender.create(train_set, user_id='user_id', item_id='recipe_id', target='rating', item_data=None)
     # model.save('scorer_test_model')
-    model = gl.load_model('scorer_test_model')
-    test = RecScorer(recommender=model, sf=sf, test_set=test_set)
-    test.score_precision_recall()
+
+    regularization_vals = [0.001, 0.0001, 0.00001, 0.000001]
+    names = ['r={}'.format(r) for r in regularization_vals]
+    c = plt.get_cmap('viridis')
+    n = len(regularization_vals)
+    colors = [c(float(i)/n) for i in range(n)]
+    models = [gl.factorization_recommender.create(train_set, user_id='user_id', item_id='recipe_id', target='rating', item_data=None, max_iterations=50, num_factors=8, regularization=r, random_seed=42)for r in regularization_vals]
+    # model = gl.load_model('scorer_test_model')
+    test = ScoreMany(sf=sf, test_set=test_set, recommenders=models, recommender_names=names, colors=colors)
+    test.plot_score_all()
+    # test.score_precision_recall()
     # test._make_f1_lines
-
-    # OLD BULLSHIT
-
-    # def get_precision_recall(self, slices=range(10, 110, 10), plot_precision_recall=True):
-    #     self.slices = slices
-    #     npr = []
-    #     for i in slices:
-    #         sf_slice = self.sf[:i]
-    #         predictions = self.recommender.predict(sf_slice)
-    #         precision, recall = self._get_score_metrics(predictions, sf_slice)
-    #         npr.append([i, precision, recall])
-    #     if plot_precision_recall:
-    #         self.plot_precision_recall(npr)
-    #     self.precision_recall_scores = npr
-    #     return npr
-
-    # def _get_score_metrics(self, predictions, sf_slice):
-    #     predictions = np.round(predictions)
-    #     predictions = gl.SArray(data=predictions, dtype=int)
-    #
-    #     precision = gl.evaluation.precision(targets=sf_slice['rating'], predictions=predictions)
-    #     recall = gl.evaluation.recall(targets=sf_slice['rating'], predictions=predictions)
-    #     return precision, recall
-
-    # def plot_precision_recall(self, npr):
-    #     '''
-    #     plots precision on x-axis
-    #     plots recall on y-axis
-    #
-    #     '''
-    #     nums, precision, recall = zip(*npr)
-    #     c = plt.get_cmap('viridis')
-    #     colors = [c(0.15*float(i)/len(self.slices)) for i in self.slices]
-    #
-    #     fig, ax = plt.subplots(1, figsize=(8,8))
-    #     for i, n in enumerate(nums):
-    #         ax.scatter(precision[i], recall[i], color=colors[i], s=50, alpha=0.8, label='Size - {}'.format(n))
-    #
-    #     ax = self._make_f1_lines(ax=ax)
-    #     ax.set_xlabel('Precision')
-    #     ax.set_ylabel('Recall')
-    #     ax.set_title('Precision - Recall Plot')
-    #     ax.legend(loc='best')
-    #     ax.set_xlim(0.0, 1.0), ax.set_ylim(0.0, 1.05)
-    #     self.ax = ax
-    #     # plt.savefig('precision_recall_data10k_factrec.jpg')
-    #     plt.show()
