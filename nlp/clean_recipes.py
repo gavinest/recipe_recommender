@@ -4,7 +4,9 @@ from nltk.stem.wordnet import WordNetLemmatizer
 from string import punctuation
 from unidecode import unidecode
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.cluster import KMeans
 import cPickle as pickle
+import numpy as np
 import pandas as pd
 import sys
 sys.path.append('/Users/Gavin/ds/recipe_recommender')
@@ -30,9 +32,10 @@ class NLPProcessor(object):
         #create vectorizer expecting list of input for each document to allow for n-grams
         #set lowercase to False since text already lowercased
         self.vectorizer = vectorizer(**kwargs)
+        self.unique_recipes = set([_['recipe_id'] for _ in RECIPE_COLLECTION.find({}, {'recipe_id': 1, '_id': 0})])
 
     def _stop_words(self):
-        recipe_stopwords = set(['pound', 'pounds', 'tablespoon', 'tablespoons', 'teaspoon', 'teaspoons', 'cup', 'cups', 'bunch', 'chopped', 'diced', 'crushed', 'inch', 'sliced', 'optional', 'desired', 'ounce', 'ounces', 'fresh', 'piece', 'pinch', 'sprinkling', 'peeled', 'taste', 'quartered', 'halved', 'half', 'divided', 'lengthwise', 'box', 'package', 'packaged', 'uncooked', 'cooked', 'seared', 'drained', 'trimmed', 'mashed', 'grated', 'ground', 'shredded', 'cut', 'cube', 'cubed', 'prepared', 'fresh', 'freshly', 'dried', 'fresh', 'beaten', 'lightly', 'light', 'room', 'temperature', 'skinless', 'boneless', 'half', 'chunk', 'yummy', 'snipped', 'fillet', 'whole', 'husk', 'removed', 'thin', 'thinly', 'thickly', 'thick', 'soft', 'large', 'ripe', 'large', 'pressed', 'jar', 'rinsed', 'well', 'dash', 'can', 'melted', 'thawed', 'softened', 'degree', 'degrees', 'c', 'finely'])
+        recipe_stopwords = set(['pound', 'pounds', 'tablespoon', 'tablespoons', 'teaspoon', 'teaspoons', 'cup', 'cups', 'bunch', 'chopped', 'diced', 'crushed', 'inch', 'sliced', 'optional', 'desired', 'ounce', 'ounces', 'fresh', 'piece', 'pinch', 'sprinkling', 'peeled', 'taste', 'quartered', 'halved', 'half', 'divided', 'lengthwise', 'box', 'package', 'packaged', 'uncooked', 'cooked', 'seared', 'drained', 'trimmed', 'mashed', 'grated', 'ground', 'shredded', 'cut', 'cube', 'cubed', 'prepared', 'fresh', 'freshly', 'dried', 'fresh', 'beaten', 'lightly', 'light', 'room', 'temperature', 'skinless', 'boneless', 'half', 'chunk', 'yummy', 'snipped', 'fillet', 'whole', 'husk', 'removed', 'thin', 'thinly', 'thickly', 'thick', 'soft', 'large', 'ripe', 'large', 'pressed', 'jar', 'rinsed', 'well', 'dash', 'can', 'melted', 'thawed', 'softened', 'degree', 'degrees', 'c', 'finely', 'bag', 'bags', 'baby', '16inch', '10inch', '12inch', '14inch', '18inch', '3inch', '4inch', '5inch', '6inch', '7inch', '9inch', '1inch', 'unpeeled', 'peeled', 'with', 'without', '1pint', '1quart', '2layer', ' '])
         stop = set(stopwords.words('english'))
         return stop.union(recipe_stopwords)
 
@@ -45,14 +48,14 @@ class NLPProcessor(object):
             tokens.append(' '.join(lemmers))
         return tokens
 
-    def fit_vectorizor(self, pkl=True):
+    def fit_vectorizor(self, pkl=False):
         recipe_cursor = RECIPE_COLLECTION.find(no_cursor_timeout=True)#.limit(100)
         for recipe in recipe_cursor:
             text = recipe['ingredients']
-            try:
-                text.extend(recipe['taxonomy'])
-            except KeyError:
-                continue
+            # try:
+            #     text.extend(recipe['taxonomy'])
+            # except KeyError:
+            #     continue
             for word in recipe['name'].split('-'):
                 text.append(word)
             self.documents.append(self._tokenize(text))
@@ -66,10 +69,10 @@ class NLPProcessor(object):
         recipe = RECIPE_COLLECTION.find_one({'recipe_id': str(recipe_id)})
         if recipe:
             text = recipe['ingredients']
-            try:
-                text.extend(recipe['taxonomy'])
-            except KeyError:
-                next
+            # try:
+            #     text.extend(recipe['taxonomy'])
+            # except KeyError:
+            #     next
             for word in recipe['name'].split('-'):
                 text.append(word)
             return text
@@ -99,6 +102,59 @@ class NLPProcessor(object):
             text.append(' '.join(recipe['name'].split('-')))
             documents = self._tokenize(text)
         return text, documents, recipe_ids
+    #
+    def df_of_text(self):
+        for recipe in self.unique_recipes:
+            tokens = self._tokenize(self.get_recipe_text(recipe))
+
+    def taxonomy_to_df(self):
+        tax_lst, recipe_ids= [], []
+        for recipe in RECIPE_COLLECTION.find({}, {'taxonomy': 1, 'recipe_id': 1, '_id': 0}):
+            # if recipe['recipe_id'] in self.user_ids:
+            try:
+                recipe_ids.append(recipe['recipe_id'])
+                tax_lst.append(recipe['taxonomy'][0])
+            except KeyError:
+                recipe_ids.append(recipe['recipe_id'])
+                tax_lst.append(np.nan)
+        df = pd.DataFrame(np.array(zip(recipe_ids, tax_lst)))
+        df.columns =['recipe_id', 'taxonomy']
+
+        groups = df['taxonomy'].unique().tolist()
+        d = dict(zip(groups, range(len(groups))))
+        df['taxonomy_id'] = df['taxonomy'].map(d)
+        return df
+            # card =
+            # except KeyError:
+            #     next
+            # for word in recipe['name'].split('-'):
+
+# class NLPKMeans(NLPProcessor):
+#     def __init__(self, kmean_kwargs={}, vectorizer=TfidfVectorizer, vectorizer_kwargs={'analyzer':list, 'lowercase':False}):
+#         self.kmeans = KMeans(**kmean_kwargs)
+#         self.nlp = NLPProcessor(**vectorizer_kwargs)
+        # super(NLPKMeans, self).__init__()
+
+    # def _get_clusters(self, tfidf, features):
+    #     '''
+    #     class sklearn.cluster.KMeans(n_clusters=8, init='k-means++', n_init=10, max_iter=300, tol=0.0001, precompute_distances='auto', verbose=0, random_state=None, copy_x=True, n_jobs=1, algorithm='auto')
+    #     '''
+    #     self.nlp.fit_vectorizor()
+    #     self.cluster.fit(self.nlp.tfidf)
+    #
+    #     #Finds the top 10 features for each cluster.
+    #     features = self.nlp.vectorizer.get_feature_names()
+    #     top_centroids = self.kmeans.cluster_centers_.argsort()[:,-1:-11:-1]
+    #     self.top_cluster_features = (num, ", ".join(features[i]) for i in centroid) for num, centroid in enumerate(top_centroids)
+    #
+    # def graphlab_sf(nlp):
+    #     self.kmeans = self.get_clusters(nlp.tfidf, features)
+    #     predictions = kmeans.predict(nlp.tfidf)
+    #     predictions = pd.DataFrame(data=predictions, columns=['cluster'])
+    #     df = nlp.taxonomy_to_df()
+    #     self.df = pd.concat([df, predictions], axis=1)
+    #     self.sf = gl.SFrame(df)
+    #     return self.sf
 
 # def update_recipes():
 #     for recipe in COLLECTION.find():
@@ -123,11 +179,20 @@ if __name__ == '__main__':
                  u'13010',
                  u'237093',
                  u'231067']
+    t = NLPProcessor()
     # t.make_tfidf(test_ids)
     # t.vectorizer.vocabulary_
-    # t.fit_vectorizor()
-    t = NLPProcessor()
-    test = t.recipe_text_to_df(test_ids)
+    t.fit_vectorizor()
+    text = t._tokenize(t.get_recipe_text('212940'))
+    # test = t.recipe_text_to_df(test_ids)
+    # test = t.taxonomy_to_df()
+
+
+    '''
+    getting nlp to work
+
+    enter taxonomy in one column and cluster group in another one.
+    '''
 
 
     '''
@@ -137,5 +202,5 @@ if __name__ == '__main__':
 
     add to entry in mongo for speed of referencing
 
-    when pull into sframe when called 
+    when pull into sframe when called
     '''
