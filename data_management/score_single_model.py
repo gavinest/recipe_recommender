@@ -18,10 +18,11 @@ class RecScorer(object):
         self.n_users = recommender.num_users
         self.all_data = sf
         self.sf = test_set
-        # if axes:
-        self.axes= axes
-        # else:
-        #     self.fig, self.axes = plt.subplots(1,2, figsize=(14,6))
+        if axes:
+            self.axes = axes
+        else:
+            self.fig, self.axes = plt.subplots(1,2, figsize=(14,6))
+
 
     def score_precision_recall(self, plot=True):
         '''
@@ -115,7 +116,7 @@ class RecScorer(object):
         self.axes[0].legend(loc='best')
         self.axes[0].set_xlim(0.0, 1.0), self.axes[0].set_ylim(0.0, 1.05)
 
-        # self.axes[0] = self._make_f1_lines()
+        self.axes[0] = self._make_f1_lines()
 
     def _make_f1_lines(self):
         precision_values = np.linspace(0.0, 1.0, num=500)[1:]
@@ -132,21 +133,6 @@ class RecScorer(object):
 
     def _calc_recall(self, f, p):
         return f * p / (2 * p - f)
-
-
-class ScoreMany(RecScorer):
-    def __init__(self, recommenders, sf, test_set):
-        self.recommenders = recommenders
-        self.all_data = sf
-        self.sf = test_set
-        self.fig, self.axes = plt.subplots(1,2, figsize=(14,6))
-
-    def plot_score_all(self):
-        for recommender in self.recommenders:
-            R = RecScorer(recommender=recommender, sf=self.all_data, test_set=self.sf, axes=self.axes)
-            R.score_precision_recall()
-            self.axes = R.axes
-        self.recommenders[0]._make_f1_lines()
 
 if __name__ == '__main__':
     'load data train test model'
@@ -168,50 +154,3 @@ if __name__ == '__main__':
     test.plot_score_all()
     # test.score_precision_recall()
     # test._make_f1_lines
-
-    # OLD BULLSHIT
-
-    # def get_precision_recall(self, slices=range(10, 110, 10), plot_precision_recall=True):
-    #     self.slices = slices
-    #     npr = []
-    #     for i in slices:
-    #         sf_slice = self.sf[:i]
-    #         predictions = self.recommender.predict(sf_slice)
-    #         precision, recall = self._get_score_metrics(predictions, sf_slice)
-    #         npr.append([i, precision, recall])
-    #     if plot_precision_recall:
-    #         self.plot_precision_recall(npr)
-    #     self.precision_recall_scores = npr
-    #     return npr
-
-    # def _get_score_metrics(self, predictions, sf_slice):
-    #     predictions = np.round(predictions)
-    #     predictions = gl.SArray(data=predictions, dtype=int)
-    #
-    #     precision = gl.evaluation.precision(targets=sf_slice['rating'], predictions=predictions)
-    #     recall = gl.evaluation.recall(targets=sf_slice['rating'], predictions=predictions)
-    #     return precision, recall
-
-    # def plot_precision_recall(self, npr):
-    #     '''
-    #     plots precision on x-axis
-    #     plots recall on y-axis
-    #
-    #     '''
-    #     nums, precision, recall = zip(*npr)
-    #     c = plt.get_cmap('viridis')
-    #     colors = [c(0.15*float(i)/len(self.slices)) for i in self.slices]
-    #
-    #     fig, ax = plt.subplots(1, figsize=(8,8))
-    #     for i, n in enumerate(nums):
-    #         ax.scatter(precision[i], recall[i], color=colors[i], s=50, alpha=0.8, label='Size - {}'.format(n))
-    #
-    #     ax = self._make_f1_lines(ax=ax)
-    #     ax.set_xlabel('Precision')
-    #     ax.set_ylabel('Recall')
-    #     ax.set_title('Precision - Recall Plot')
-    #     ax.legend(loc='best')
-    #     ax.set_xlim(0.0, 1.0), ax.set_ylim(0.0, 1.05)
-    #     self.ax = ax
-    #     # plt.savefig('precision_recall_data10k_factrec.jpg')
-    #     plt.show()

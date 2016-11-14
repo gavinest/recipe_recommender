@@ -110,7 +110,6 @@ class NLPProcessor(object):
     def taxonomy_to_df(self):
         tax_lst, recipe_ids= [], []
         for recipe in RECIPE_COLLECTION.find({}, {'taxonomy': 1, 'recipe_id': 1, '_id': 0}):
-            # if recipe['recipe_id'] in self.user_ids:
             try:
                 recipe_ids.append(recipe['recipe_id'])
                 tax_lst.append(recipe['taxonomy'][0])
@@ -123,38 +122,9 @@ class NLPProcessor(object):
         groups = df['taxonomy'].unique().tolist()
         d = dict(zip(groups, range(len(groups))))
         df['taxonomy_id'] = df['taxonomy'].map(d)
+        df.drop('taxonomy', axis=1, inplace=True)
         return df
-            # card =
-            # except KeyError:
-            #     next
-            # for word in recipe['name'].split('-'):
 
-# class NLPKMeans(NLPProcessor):
-#     def __init__(self, kmean_kwargs={}, vectorizer=TfidfVectorizer, vectorizer_kwargs={'analyzer':list, 'lowercase':False}):
-#         self.kmeans = KMeans(**kmean_kwargs)
-#         self.nlp = NLPProcessor(**vectorizer_kwargs)
-        # super(NLPKMeans, self).__init__()
-
-    # def _get_clusters(self, tfidf, features):
-    #     '''
-    #     class sklearn.cluster.KMeans(n_clusters=8, init='k-means++', n_init=10, max_iter=300, tol=0.0001, precompute_distances='auto', verbose=0, random_state=None, copy_x=True, n_jobs=1, algorithm='auto')
-    #     '''
-    #     self.nlp.fit_vectorizor()
-    #     self.cluster.fit(self.nlp.tfidf)
-    #
-    #     #Finds the top 10 features for each cluster.
-    #     features = self.nlp.vectorizer.get_feature_names()
-    #     top_centroids = self.kmeans.cluster_centers_.argsort()[:,-1:-11:-1]
-    #     self.top_cluster_features = (num, ", ".join(features[i]) for i in centroid) for num, centroid in enumerate(top_centroids)
-    #
-    # def graphlab_sf(nlp):
-    #     self.kmeans = self.get_clusters(nlp.tfidf, features)
-    #     predictions = kmeans.predict(nlp.tfidf)
-    #     predictions = pd.DataFrame(data=predictions, columns=['cluster'])
-    #     df = nlp.taxonomy_to_df()
-    #     self.df = pd.concat([df, predictions], axis=1)
-    #     self.sf = gl.SFrame(df)
-    #     return self.sf
 
 # def update_recipes():
 #     for recipe in COLLECTION.find():
@@ -164,43 +134,43 @@ class NLPProcessor(object):
 #         # print clean_ingredients(recipe['ingredients'])
 #     print 'Updated!'
 
-
-if __name__ == '__main__':
-    # t = clean_ingredients(test_list)
-    # update_recipes()
-    # text, documetns, recipe_ids = t.test(num_recipes=10)
-    test_ids = [u'212940',
-                 u'230469',
-                 u'50026',
-                 u'219164',
-                 u'255821',
-                 u'246866',
-                 u'255298',
-                 u'13010',
-                 u'237093',
-                 u'231067']
-    t = NLPProcessor()
-    # t.make_tfidf(test_ids)
-    # t.vectorizer.vocabulary_
-    t.fit_vectorizor()
-    text = t._tokenize(t.get_recipe_text('212940'))
-    # test = t.recipe_text_to_df(test_ids)
-    # test = t.taxonomy_to_df()
-
-
-    '''
-    getting nlp to work
-
-    enter taxonomy in one column and cluster group in another one.
-    '''
-
-
-    '''
-    send vectorizer vocab to ordered dict
-
-    loop through ordered dict and if word from individual recipe is in ordered dict then append 1 otherwise append 0 to a deque
-
-    add to entry in mongo for speed of referencing
-
-    when pull into sframe when called
-    '''
+#
+# if __name__ == '__main__':
+#     # t = clean_ingredients(test_list)
+#     # update_recipes()
+#     # text, documetns, recipe_ids = t.test(num_recipes=10)
+#     test_ids = [u'212940',
+#                  u'230469',
+#                  u'50026',
+#                  u'219164',
+#                  u'255821',
+#                  u'246866',
+#                  u'255298',
+#                  u'13010',
+#                  u'237093',
+#                  u'231067']
+#     t = NLPProcessor()
+#     # t.make_tfidf(test_ids)
+#     # t.vectorizer.vocabulary_
+#     t.fit_vectorizor()
+#     text = t._tokenize(t.get_recipe_text('212940'))
+#     # test = t.recipe_text_to_df(test_ids)
+#     # test = t.taxonomy_to_df()
+#
+#
+#     '''
+#     getting nlp to work
+#
+#     enter taxonomy in one column and cluster group in another one.
+#     '''
+#
+#
+#     '''
+#     send vectorizer vocab to ordered dict
+#
+#     loop through ordered dict and if word from individual recipe is in ordered dict then append 1 otherwise append 0 to a deque
+#
+#     add to entry in mongo for speed of referencing
+#
+#     when pull into sframe when called
+#     '''

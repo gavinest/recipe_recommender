@@ -26,7 +26,6 @@ def get_clusters(tfidf, features):
     print "top features for each cluster:"
     for num, centroid in enumerate(top_centroids):
         print "%d: %s" % (num, ", ".join(features[i] for i in centroid))
-
     return kmeans
 
 def for_graphlab(nlp):

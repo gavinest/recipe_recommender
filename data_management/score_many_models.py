@@ -91,9 +91,9 @@ class RecScorer(object):
         # self.axes[1].axhline(self.recommender['training_rmse'], color='r', linestyle='--', label='Train RMSE')
         self.test_rmse = gl.evaluation.rmse(targets=self.sf['rating'], predictions=self.recommender.predict(self.sf))
         # print test_rmse
-        # self.axes[1].axhline(test_rmse, color=self.color, linestyle='-', label=self.name)
-        self.axes[1].set_ylabel('RMSE')
-        self.axes[1].legend(loc='best')
+        self.axes[1].axhline(self.test_rmse, color=self.color, linestyle='-', label=self.name)
+        # self.axes[1].set_ylabel('RMSE')
+        # self.axes[1].legend(loc='best')
         # self.axes[1].set_ylim(0, 0.02)
         self.axes[1].set_title('Recommender Test RMSE')
 
@@ -128,20 +128,21 @@ class RecScorer(object):
         return f * p / (2 * p - f)
 
 class ScoreMany(RecScorer):
-    def __init__(self, sf, test_set, recommenders, recommender_names, colors):
+    def __init__(self, sfs, test_sets, recommenders, recommender_names, colors):
         self.recommenders = recommenders
         self.recommender_names = recommender_names
         self.colors = colors
-        self.all_data = sf
-        self.sf = test_set
+        self.all_datas = sfs
+        self.sfs = test_sets
         self.fig, self.axes = plt.subplots(1,2, figsize=(14,6))
+        self.plot_score_all()
 
     def plot_score_all(self):
         scorer_objs = []
         for i, recommender in enumerate(self.recommenders):
             R = RecScorer(
-                sf=self.all_data,
-                test_set=self.sf,
+                sf=self.all_data[i],
+                test_set=self.sfs[i],
                 recommender=recommender,
                 name=self.recommender_names[i],
                 color=self.colors[i],
@@ -149,8 +150,7 @@ class ScoreMany(RecScorer):
             R.score_precision_recall()
             scorer_objs.append(R)
             self.axes = R.axes
-        scorer_objs[0].axes[1].plot(range(1,5
-        ), [obj.test_rmse for obj in scorer_objs], color='r')
+        # scorer_objs[0].axes[1].plot(range(1,5), [obj.test_rmse for obj in scorer_objs], color='r')
         scorer_objs[0]._make_f1_lines()
 
 if __name__ == '__main__':
