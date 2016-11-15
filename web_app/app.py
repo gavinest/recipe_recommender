@@ -1,13 +1,10 @@
 from flask import Flask, request, render_template, url_for, redirect
-from wtforms import Form
 import numpy as np
 import pandas as pd
 import graphlab as gl
 from unidecode import unidecode
 from pymongo import MongoClient
-import sys
-sys.path.append('/Users/Gavin/ds/recipe_recommender')
-from data_management.load_data import DataLoader
+
 
 app = Flask(__name__)
 #global variables
@@ -89,10 +86,6 @@ def get_random_ids():
     return [int(unidecode(user)) for user in users]
 
 if __name__ == '__main__':
-    # data = DataLoader(10)
-    # data.to_dataframe()
-    # print data.user_idx
-    # df = data.df
     df = pd.read_pickle('../data_management/pkls/data.pkl')
     model = gl.load_model('../models/model')
 
