@@ -18,7 +18,7 @@ def get_clusters(tfidf, features):
     class sklearn.cluster.KMeans(n_clusters=8, init='k-means++', n_init=10, max_iter=300, tol=0.0001, precompute_distances='auto', verbose=0, random_state=None, copy_x=True, n_jobs=1, algorithm='auto')
     '''
 
-    kmeans = KMeans(n_clusters=50, init='k-means++', random_state=42, n_jobs=-1)
+    kmeans = KMeans(n_clusters=10, init='k-means++', random_state=42, n_jobs=-1)
     kmeans.fit(tfidf)
 
     # 3. Find the top 10 features for each cluster.
@@ -33,13 +33,12 @@ def for_graphlab(nlp):
     kmeans = get_clusters(nlp.tfidf, features)
     predictions = kmeans.predict(nlp.tfidf)
     predictions = pd.DataFrame(data=predictions, columns=['cluster'])
-    df = nlp.taxonomy_to_df()
-    df = pd.concat([df, predictions], axis=1)
-    return df
-
+    # df = nlp.taxonomy_to_df()
+    # df = pd.concat([df, predictions], axis=1)
+    return predictions
 
 if __name__ == '__main__':
-    nlp = NLPProcessor(vectorizer=TfidfVectorizer, kwargs={'analyzer':list, 'lowercase':False, 'max_df':0.8})
+    nlp = NLPProcessor(vectorizer=TfidfVectorizer, kwargs={'analyzer':list, 'lowercase':False, 'max_df':0.8, 'min_df':0.00, 'max_features':500})
     nlp.fit_vectorizor()
     # features = nlp.vectorizer.get_feature_names()
     # with open("nlp_vectorizer.pkl") as f:

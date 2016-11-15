@@ -9,7 +9,7 @@ class RecScorer(object):
     Scores on precision, recall, and F1 Score.
     '''
 
-    def __init__(self, recommender, sf, test_set, axes=None):
+    def __init__(self, recommender, sf, test_set, new_item_data=None, name=None, color=None, axes=None, i=1):
         '''
         Input: trained graphlab recommender object
                 Graphlab SFrame of Test Data
@@ -18,11 +18,16 @@ class RecScorer(object):
         self.n_users = recommender.num_users
         self.all_data = sf
         self.sf = test_set
-        if axes:
+        self.new_item_data = new_item_data
+        self.i = i
+        if axes.any():
             self.axes = axes
+            self.name = name
+            self.color = color
         else:
             self.fig, self.axes = plt.subplots(1,2, figsize=(14,6))
-
+            self.name=None
+            self.color='r'
 
     def score_precision_recall(self, plot=True):
         '''
@@ -65,7 +70,7 @@ class RecScorer(object):
         sorted_df['bool'] = sorted_df['bool'].map({True: 1, False: 0})
 
         sf = self.sf.copy()
-        predictions = self.recommender.predict(sf)
+        predictions = self.recommender.predict(sf, new_item_data=self.new_item_data)
         predictions = sf.add_column(predictions, 'rating_pred').to_dataframe()
         predictions.drop(['rating'], axis=1, inplace=True)
 
@@ -91,11 +96,14 @@ class RecScorer(object):
     def plot_rmse(self):
         # self.axes[1].axhline(self._my_rmse(), color='b', label='My RMSE')
         # self.axes[1].axhline(self.recommender['training_rmse'], color='r', linestyle='--', label='Train RMSE')
-        test_rmse = gl.evaluation.rmse(targets=self.sf['rating'], predictions=self.recommender.predict(self.sf))
+        test_rmse = gl.evaluation.rmse(targets=self.sf['rating'], predictions=self.recommender.predict(self.sf, new_item_data=self.new_item_data))
         print test_rmse
-        self.axes[1].axhline(test_rmse, color='r', linestyle='-', label='Test RMSE')
+        self.axes[1].bar(self.i, test_rmse, align='center', color=self.color, alpha=0.8)
+        # self.axes[1].scatter(1, test_rmse, color=self.color, s = 50, label=self.name)
+        self.axes[1].annotate('{0:.2f}'.format(test_rmse), xy=(self.i-0.05, test_rmse+0.005), textcoords='data')
+        self.axes[1].set_xticks([self.i], self.name)
         self.axes[1].set_ylabel('RMSE')
-        self.axes[1].legend(loc='best')
+        # self.axes[1].legend(loc=2)
         # self.axes[1].set_ylim(0, 0.02)
         self.axes[1].set_title('Recommender Test RMSE')
 
@@ -108,7 +116,7 @@ class RecScorer(object):
         # nums, precision, recall = zip(*npr)
         # c = plt.get_cmap('viridis')
         # colors = [c(0.15*float(i)/len(self.slices)) for i in self.slices]
-        self.axes[0].scatter(self.precision, self.recall, color='r', s=50, alpha=1.0)
+        self.axes[0].scatter(self.precision, self.recall, color=self.color, s=50, alpha=1.0, label=self.name)
 
         self.axes[0].set_xlabel('Precision')
         self.axes[0].set_ylabel('Recall')
@@ -116,7 +124,7 @@ class RecScorer(object):
         self.axes[0].legend(loc='best')
         self.axes[0].set_xlim(0.0, 1.0), self.axes[0].set_ylim(0.0, 1.05)
 
-        self.axes[0] = self._make_f1_lines()
+        # self.axes[0] = self._make_f1_lines()
 
     def _make_f1_lines(self):
         precision_values = np.linspace(0.0, 1.0, num=500)[1:]

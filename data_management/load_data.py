@@ -104,14 +104,44 @@ class DataLoader(object):
             RECIPE_COLLECTION.insert_one(worker.entry)
         print 'all recipes added!'
 
+    def avg_rating_df(self):
+        avg_ratings = []
+        for recipe in RECIPE_COLLECTION.find({}, {'recipe_id':1, 'rating': 1, 'num_reviews': 1, '_id':0}):
+            avg_ratings.append([recipe['recipe_id'], recipe['rating'][0], recipe['num_reviews'][0]])
+        df = pd.DataFrame(np.array(avg_ratings), columns=['recipe_id', 'avg_rating', 'num_reviews'], dtype='float64')
+        df['recipe_id'] = df['recipe_id'].astype('int64')
+        df['num_reviews'] = df['num_reviews'].astype('int64')
+        return df
+
+    def taxonomy_to_df(self):
+        tax_lst, recipe_ids= [], []
+        for recipe in RECIPE_COLLECTION.find({}, {'taxonomy': 1, 'recipe_id': 1, '_id': 0}):
+            try:
+                recipe_ids.append(recipe['recipe_id'])
+                tax_lst.append(recipe['taxonomy'][0])
+            except KeyError:
+                recipe_ids.append(recipe['recipe_id'])
+                tax_lst.append(np.nan)
+        df = pd.DataFrame(np.array(zip(recipe_ids, tax_lst)))
+        df.columns =['recipe_id', 'taxonomy']
+
+        groups = df['taxonomy'].unique().tolist()
+        d = dict(zip(groups, range(len(groups))))
+        df['taxonomy_id'] = df['taxonomy'].map(d)
+        df.drop('taxonomy', axis=1, inplace=True)
+        return df
+
 if __name__ == '__main__':
-    start = time.time()
-
-    d = DataLoader(100)
-    d.to_pickle('data_1H.pkl')
-    # d.to_dataframe()
-
-    total_time = time.time()-start
-    print total_time
+    # start = time.time()
+    #
+    # d = DataLoader(100)
+    # d.to_pickle('data_1H.pkl')
+    # # d.to_dataframe()
+    #
+    # total_time = time.time()-start
+    # print total_time
 
     # df = pd.read_pickle('data.pkl')
+    t = DataLoader()
+    avg_df = t.avg_rating_df()
+    tax_df = t.taxonomy_to_df()

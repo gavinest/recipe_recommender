@@ -32,7 +32,7 @@ class NLPProcessor(object):
         #create vectorizer expecting list of input for each document to allow for n-grams
         #set lowercase to False since text already lowercased
         self.vectorizer = vectorizer(**kwargs)
-        self.unique_recipes = set([_['recipe_id'] for _ in RECIPE_COLLECTION.find({}, {'recipe_id': 1, '_id': 0})])
+        # self.unique_recipes = set([_['recipe_id'] for _ in RECIPE_COLLECTION.find({}, {'recipe_id': 1, '_id': 0})])
 
     def _stop_words(self):
         recipe_stopwords = set(['pound', 'pounds', 'tablespoon', 'tablespoons', 'teaspoon', 'teaspoons', 'cup', 'cups', 'bunch', 'chopped', 'diced', 'crushed', 'inch', 'sliced', 'optional', 'desired', 'ounce', 'ounces', 'fresh', 'piece', 'pinch', 'sprinkling', 'peeled', 'taste', 'quartered', 'halved', 'half', 'divided', 'lengthwise', 'box', 'package', 'packaged', 'uncooked', 'cooked', 'seared', 'drained', 'trimmed', 'mashed', 'grated', 'ground', 'shredded', 'cut', 'cube', 'cubed', 'prepared', 'fresh', 'freshly', 'dried', 'fresh', 'beaten', 'lightly', 'light', 'room', 'temperature', 'skinless', 'boneless', 'half', 'chunk', 'yummy', 'snipped', 'fillet', 'whole', 'husk', 'removed', 'thin', 'thinly', 'thickly', 'thick', 'soft', 'large', 'ripe', 'large', 'pressed', 'jar', 'rinsed', 'well', 'dash', 'can', 'melted', 'thawed', 'softened', 'degree', 'degrees', 'c', 'finely', 'bag', 'bags', 'baby', '16inch', '10inch', '12inch', '14inch', '18inch', '3inch', '4inch', '5inch', '6inch', '7inch', '9inch', '1inch', 'unpeeled', 'peeled', 'with', 'without', '1pint', '1quart', '2layer', ' '])
@@ -49,8 +49,10 @@ class NLPProcessor(object):
         return tokens
 
     def fit_vectorizor(self, pkl=False):
+        self.recipes_tfidf = []
         recipe_cursor = RECIPE_COLLECTION.find(no_cursor_timeout=True)#.limit(100)
         for recipe in recipe_cursor:
+            self.recipes_tfidf.append(recipe['recipe_id'])
             text = recipe['ingredients']
             # try:
             #     text.extend(recipe['taxonomy'])
@@ -107,33 +109,6 @@ class NLPProcessor(object):
         for recipe in self.unique_recipes:
             tokens = self._tokenize(self.get_recipe_text(recipe))
 
-    def taxonomy_to_df(self):
-        tax_lst, recipe_ids= [], []
-        for recipe in RECIPE_COLLECTION.find({}, {'taxonomy': 1, 'recipe_id': 1, '_id': 0}):
-            try:
-                recipe_ids.append(recipe['recipe_id'])
-                tax_lst.append(recipe['taxonomy'][0])
-            except KeyError:
-                recipe_ids.append(recipe['recipe_id'])
-                tax_lst.append(np.nan)
-        df = pd.DataFrame(np.array(zip(recipe_ids, tax_lst)))
-        df.columns =['recipe_id', 'taxonomy']
-
-        groups = df['taxonomy'].unique().tolist()
-        d = dict(zip(groups, range(len(groups))))
-        df['taxonomy_id'] = df['taxonomy'].map(d)
-        df.drop('taxonomy', axis=1, inplace=True)
-        return df
-
-
-# def update_recipes():
-#     for recipe in COLLECTION.find():
-#         COLLECTION.update_one({'_id': recipe['_id']},
-#                 {'$set': {'tokens': clean_ingredients(recipe['ingredients'])}},
-#                 upsert=False)
-#         # print clean_ingredients(recipe['ingredients'])
-#     print 'Updated!'
-
 #
 # if __name__ == '__main__':
 #     # t = clean_ingredients(test_list)
@@ -156,21 +131,3 @@ class NLPProcessor(object):
 #     text = t._tokenize(t.get_recipe_text('212940'))
 #     # test = t.recipe_text_to_df(test_ids)
 #     # test = t.taxonomy_to_df()
-#
-#
-#     '''
-#     getting nlp to work
-#
-#     enter taxonomy in one column and cluster group in another one.
-#     '''
-#
-#
-#     '''
-#     send vectorizer vocab to ordered dict
-#
-#     loop through ordered dict and if word from individual recipe is in ordered dict then append 1 otherwise append 0 to a deque
-#
-#     add to entry in mongo for speed of referencing
-#
-#     when pull into sframe when called
-#     '''

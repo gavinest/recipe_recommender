@@ -141,7 +141,7 @@ class ScoreMany(RecScorer):
         scorer_objs = []
         for i, recommender in enumerate(self.recommenders):
             R = RecScorer(
-                sf=self.all_data[i],
+                sf=self.all_datas[i],
                 test_set=self.sfs[i],
                 recommender=recommender,
                 name=self.recommender_names[i],
