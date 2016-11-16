@@ -6,6 +6,7 @@
 *.ipynb
 *.jpg
 *.zip
+*.pdf
 
 #ignore directories
 eda/

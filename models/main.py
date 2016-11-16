@@ -109,6 +109,24 @@ def score_many_models(sfs, test_sets, recommenders, recommender_names, colors, n
     # scorer_objs[0].axes[1].plot(range(1,5), [obj.test_rmse for obj in scorer_objs], color='r')
     scorer_objs[0]._make_f1_lines()
 
+def bar_rmse(sfs, test_sets, new_item_data, recommenders, recommender_names, colors):
+    rmses = []
+    for i, recommender in enumerate(recommenders):
+        rmses.append(gl.evaluation.rmse(targets=test_sets[i]['rating'], predictions=recommender.predict(test_sets[i], new_item_data=new_item_data[i])))
+
+    score_dct = dict(zip(rmses, recommender_names))
+    sorted_rmses = score_dct.keys()
+    sorted_rmses = sorted(sorted_rmses, reverse=True)
+    print sorted_rmses
+    fig, ax = plt.subplots(1, figsize=(8,8))
+    for i, rmse in enumerate(sorted_rmses):
+        ax.bar(i, rmse, align='center', color=colors[i], alpha=0.8)
+        ax.annotate('{0:.2f}'.format(rmse), xy=(i-0.05, rmse+0.005), textcoords='data')
+        ax.set_ylabel('RMSE')
+        ax.set_title('Recommender Test RMSE')
+
+    plt.xticks(range(len(recommenders)), [score_dct[rmse] for rmse in sorted_rmses])
+
 if __name__ == '__main__':
     np.random.seed(seed=42)
     #
@@ -164,7 +182,7 @@ if __name__ == '__main__':
     #
     # '''format for scoring'''
     colors = ['r', 'b', 'k', 'g', 'm']
-    names = ['baseline', 'nlp data', 'taxonomy data', 'avg rating data', 'all_features']
+    names = ['baseline', 'nlp data', 'taxonomy data', 'avg rating data', 'all features']
     sfs = [sf['recipe_id', 'user_id', 'rating']] * 5
     test_sets = [test_set] * 5
     # # # regularization_vals = [0.001, 0.0001, 0.00001, 0.000001]
@@ -175,12 +193,11 @@ if __name__ == '__main__':
     # colors = [c(float(i)/n) for i in range(n)]
     #
     # '''score/plot'''
+    bar_rmse(sfs=sfs, test_sets=test_sets, new_item_data=test_item_data, recommenders=trained_models, recommender_names=names, colors=colors)
     test = score_many_models(sfs=sfs, test_sets=test_sets, new_item_data=test_item_data, recommenders=trained_models, recommender_names=names, colors=colors)
 
     '''decide on final model. save here for use in web_app'''
     # # # model.save('scorer_test_model')
-    # #
-
     # #
     # models = [gl.factorization_recommender.create(sets[i][0], user_id='user_id', item_id='recipe_id', target='rating', item_data=None, random_seed=42)for i in range(4)]
     # # # model = gl.load_model('scorer_test_model')

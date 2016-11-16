@@ -30,12 +30,13 @@ def login():
             else:
                 error1 = True
         elif 'register' in request.form:
-            new_user = request.form['register']
-            if USER_COLLECTION.find({'user_id': new_user}).count()!= 0:
-                error2 = 'Invalid username. User {} already exists.'.format(new_user)
+            user_name = request.form['register']
+            if USER_COLLECTION.find({'user_id': user_name}).count()!= 0:
+                error2 = 'Invalid username. User {} already exists.'.format(user_name)
             else:
-                USER_COLLECTION.insert_one({'user_id': new_user})
-                error2 = 'Success. Welcome User {}.'.format(new_user)
+                new_user_id = find_new_user_id()
+                USER_COLLECTION.insert_one({'user_id': new_user_id, 'user_name': user_name})
+                error2 = 'Success. Welcome User {0}. User_ID {1}.'.format(user_name, new_user_id)
     return render_template('login.html', intro_header='The Recipe Recommender',  tag_line='Delicious Food is Just a Click Away', error1=error1, error2=error2, random_users=get_random_ids())
 
 
@@ -59,6 +60,7 @@ def find_recipe(recipe_id):
     return render_template('recipe_card.html', card=recipe_card)
 
 @app.route('/recommender/<user_id>')
+# @app.route('/recommender/<user_id>/<page>')
 def recommender(user_id, page=1):
     #make page specific dict
     page_dct = {
@@ -85,8 +87,15 @@ def get_random_ids():
     users = np.random.choice(np.array(s), size=5, replace=False)
     return [int(unidecode(user)) for user in users]
 
+def find_new_user_id():
+    unique_users = set([int(user['user_id']) for user in USER_COLLECTION.find({}, {'user_id': 1, '_id': 0})])
+    new_user_id = np.random.choice(xrange(0,1000000))
+    if new_user_id in unique_users:
+        new_user_id = find_new_user_id()
+    return str(new_user_id)
+
 if __name__ == '__main__':
     df = pd.read_pickle('../data_management/pkls/data.pkl')
     model = gl.load_model('../models/model')
 
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, threaded=True, debug=True)
