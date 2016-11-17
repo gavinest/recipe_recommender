@@ -27,6 +27,9 @@ def login():
             user = request.form['user_id']
             if USER_COLLECTION.find({'user_id': user}).count() != 0:
                 return redirect(url_for('recommender', user_id=user))
+            elif USER_COLLECTION.find({'user_name': user}) !=0:
+                cursor = USER_COLLECTION.find_one({'user_name': user}, {'user_id': 1, '_id':0})
+                return redirect(url_for('recommender', user_id=cursor['user_id']))
             else:
                 error1 = True
         elif 'register' in request.form:

@@ -118,14 +118,15 @@ def bar_rmse(sfs, test_sets, new_item_data, recommenders, recommender_names, col
     sorted_rmses = score_dct.keys()
     sorted_rmses = sorted(sorted_rmses, reverse=True)
     print sorted_rmses
-    fig, ax = plt.subplots(1, figsize=(8,8))
+    fig, ax = plt.subplots(1, figsize=(10,6))
+    # plt.rcParams.update({'font.size': 18})
     for i, rmse in enumerate(sorted_rmses):
-        ax.bar(i, rmse, align='center', color=colors[i], alpha=0.8)
-        ax.annotate('{0:.2f}'.format(rmse), xy=(i-0.05, rmse+0.005), textcoords='data')
-        ax.set_ylabel('RMSE')
-        ax.set_title('Recommender Test RMSE')
+        ax.bar(i, rmse, align='center', width=0.7, color=colors[i], alpha=0.8)
+        ax.annotate('{0:.2f}'.format(rmse), xy=(i-0.075, rmse+0.005), textcoords='data', fontsize=14)
+        ax.set_ylabel('RMSE', fontsize=18)
+        ax.set_title('Recommender Test RMSE', fontsize=20)
 
-    plt.xticks(range(len(recommenders)), [score_dct[rmse] for rmse in sorted_rmses])
+    plt.xticks(range(len(recommenders)), [score_dct[rmse] for rmse in sorted_rmses], fontsize=14)
 
 if __name__ == '__main__':
     np.random.seed(seed=42)
@@ -182,7 +183,7 @@ if __name__ == '__main__':
     #
     # '''format for scoring'''
     colors = ['r', 'b', 'k', 'g', 'm']
-    names = ['baseline', 'nlp data', 'taxonomy data', 'avg rating data', 'all features']
+    names = ['baseline', 'nlp', 'taxonomy', 'avg rating', 'all features']
     sfs = [sf['recipe_id', 'user_id', 'rating']] * 5
     test_sets = [test_set] * 5
     # # # regularization_vals = [0.001, 0.0001, 0.00001, 0.000001]
