@@ -8,4 +8,4 @@ Recommend recipes specific to each user based on their previous preferences. Uni
 View Live at: [www.reciperecommender.com](http://www.reciperecommender.com)
 
 Below is an outline of the steps involved in this project:
-![](/Users/Gavin/ds/recipe_recommender/imgs/tech.jpg)
+![](https://github.com/gavinest/recipe_recommender/blob/master/imgs/tech.jpg)
